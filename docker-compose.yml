@@ -1,7 +1,6 @@
 services:
   vault-demo:
     build: .
-    image: local/perseus-vault-demo:git-main
     container_name: perseus-vault-demo
     restart: unless-stopped
     networks:
