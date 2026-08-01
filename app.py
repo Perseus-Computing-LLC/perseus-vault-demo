@@ -17,6 +17,9 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 PERSEUS_VAULT = os.environ.get("PERSEUS_VAULT_BIN", "/usr/local/bin/perseus-vault")
 VAULT_IMAGE = os.environ.get("VAULT_IMAGE", "local/perseus-vault-demo:aesthetic-collapsible")
@@ -27,6 +30,7 @@ SOURCE_REPOSITORY = os.environ.get(
 SOURCE_REVISION = os.environ.get("SOURCE_REVISION", "main")
 LEDGER_URL = os.environ.get("LEDGER_URL", "https://ledger.perseus.observer")
 LEDGER_ORG = os.environ.get("LEDGER_ORG", "")
+LEDGER_API_KEY = os.environ.get("LEDGER_API_KEY", "")
 LEDGER_EXTERNAL_REF = os.environ.get("LEDGER_EXTERNAL_REF", "vault-demo")
 DB = os.environ.get("DEMO_DB", "/data/demo.db")
 PORT = int(os.environ.get("PORT", "8092"))
@@ -155,6 +159,49 @@ def result_payload(out: dict[str, Any], started: float, **meta: Any) -> tuple[in
     return (502 if out.get("error") else 200), body
 
 
+def ledger_evidence() -> tuple[int, dict[str, Any]]:
+    """Fetch a sanitized, scoped Ledger receipt without exposing the API key."""
+    if not LEDGER_URL or not LEDGER_ORG or not LEDGER_API_KEY:
+        return 503, {"error": "optional Ledger evidence is not configured"}
+
+    query = urlencode({"org": LEDGER_ORG, "external_ref": LEDGER_EXTERNAL_REF})
+    request = Request(
+        f"{LEDGER_URL.rstrip('/')}/api/audit?{query}",
+        headers={
+            "Accept": "application/json",
+            "Authorization": f"Bearer {LEDGER_API_KEY}",
+            "User-Agent": "perseus-vault-demo/1.0",
+        },
+    )
+    try:
+        with urlopen(request, timeout=10) as response:
+            receipt = json.loads(response.read(256_000))
+    except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError):
+        return 502, {"error": "Ledger evidence could not be fetched"}
+
+    events = receipt.get("events") if isinstance(receipt, dict) else []
+    verification = receipt.get("verification") if isinstance(receipt, dict) else {}
+    organization = receipt.get("organization") if isinstance(receipt, dict) else {}
+    if not isinstance(events, list):
+        events = []
+    if not isinstance(verification, dict):
+        verification = {}
+    if not isinstance(organization, dict):
+        organization = {}
+    return 200, {
+        "available": True,
+        "receipt_version": receipt.get("receipt_version"),
+        "organization_id": organization.get("id"),
+        "external_ref": receipt.get("external_ref", LEDGER_EXTERNAL_REF),
+        "event_count": len(events),
+        "chain_ok": verification.get("chain_ok"),
+        "verified_events": verification.get("verified_events"),
+        "verification_method": verification.get("method"),
+        "ledger_url": LEDGER_URL,
+        "events_included": False,
+    }
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "PerseusVaultDemo/2"
 
@@ -198,23 +245,15 @@ class Handler(BaseHTTPRequestHandler):
                     "revision": SOURCE_REVISION,
                 },
                 "ledger": {
-                    "available": bool(LEDGER_URL and LEDGER_ORG),
+                    "available": bool(LEDGER_URL and LEDGER_ORG and LEDGER_API_KEY),
                     "url": LEDGER_URL,
                     "external_ref": LEDGER_EXTERNAL_REF,
                     "mode": "optional evidence inspection; no demo claim is fabricated",
                 },
             })
         if path == "/api/evidence":
-            if not LEDGER_URL or not LEDGER_ORG:
-                return self._send(503, {"error": "optional Ledger evidence is not configured"})
-            return self._send(200, {
-                "available": True,
-                "message": "Ledger evidence inspection is configured for this demo deployment.",
-                "ledger_url": LEDGER_URL,
-                "organization": LEDGER_ORG,
-                "external_ref": LEDGER_EXTERNAL_REF,
-                "audit_url": f"{LEDGER_URL}/api/audit?org={LEDGER_ORG}&external_ref={LEDGER_EXTERNAL_REF}",
-            })
+            code, payload = ledger_evidence()
+            return self._send(code, payload)
         return self._send(404, {"error": "not found"})
 
     def do_POST(self) -> None:
