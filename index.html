@@ -78,7 +78,7 @@ h1 .accent { color: var(--green); }
 .chip::before { content: "✓"; color: var(--green); font-weight: 800; }
 .sandbox { margin: 8px auto 30px; border: 1px solid rgba(243, 189, 98, .25); background: rgba(243, 189, 98, .06); border-radius: 10px; padding: 12px 15px; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .sandbox strong { color: var(--amber); }
-.experience { padding: 18px 0 0; }
+.experience { scroll-margin-top: 88px; padding: 18px 0 0; }
 .experience-header { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 14px; }
 .experience-header h2 { margin: 8px 0 0; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.04em; }
 .experience-header p { max-width: 550px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
@@ -174,6 +174,20 @@ select { min-width: 0; max-width: 100%; }
 .sponsor-fallback { display: block; max-width: 600px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; text-align: center; }
 .sponsor-fallback a { color: var(--violet); font-weight: 700; }
 .sponsor-card-wrap.embed-failed .sponsor-card { display: none; }
+.provenance { margin: 18px 0 0; padding: 14px 16px; border: 1px solid rgba(85, 217, 154, .22); border-radius: 10px; background: rgba(85, 217, 154, .045); }
+.provenance-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.provenance-label { color: var(--green); font: 600 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.provenance-status { color: var(--muted); font: 11px var(--mono); }
+.provenance-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.provenance-item { min-width: 0; }
+.provenance-item span { display: block; color: var(--quiet); font: 10px var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+.provenance-item strong { display: block; margin-top: 3px; color: var(--text); font: 12px var(--mono); overflow-wrap: anywhere; }
+.provenance-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.provenance-actions button, .provenance-actions a { border: 1px solid var(--line-bright); border-radius: 7px; padding: 7px 10px; color: var(--muted); background: transparent; font-size: 12px; }
+.provenance-actions button:hover, .provenance-actions a:hover { color: var(--text); border-color: var(--green); }
+.evidence-output { display: none; margin-top: 11px; }
+.evidence-output.show { display: block; }
+.evidence-output a { color: var(--green); font-weight: 700; }
 .footer { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 25px 0 47px; color: var(--quiet); font: 12px var(--mono); border-top: 1px solid var(--line); }
 .footer a { color: var(--muted); }
 .toast { position: fixed; right: 20px; bottom: 20px; z-index: 30; max-width: 360px; padding: 11px 14px; border-radius: 9px; border: 1px solid var(--line-bright); background: #111923; color: var(--text); box-shadow: 0 12px 42px rgba(0,0,0,.35); font-size: 13px; transform: translateY(20px); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
@@ -200,6 +214,7 @@ select { min-width: 0; max-width: 100%; }
   .support { align-items: flex-start; }
   .support-actions { width: 100%; }
   .sponsor-card-wrap { padding: 12px; }
+  .provenance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
 </style>
@@ -260,7 +275,7 @@ select { min-width: 0; max-width: 100%; }
 
   <div class="shell sandbox"><strong>Sandbox boundary.</strong> This isolated database is for demonstration only. Entries are scoped to this browser session, rate-limited, and never enter production data. Resetting the browser session clears your demo scope; the full Vault runs locally under your control.</div>
 
-  <section id="try" class="experience shell">
+  <section id="try" class="experience shell" tabindex="-1">
     <div class="experience-header">
       <div>
         <div class="eyebrow">Try it in under a minute</div>
@@ -398,6 +413,23 @@ select { min-width: 0; max-width: 100%; }
         <a href="https://github.com/sponsors/tcconnally">Support the work ↗</a>
         <iframe class="sponsor-button" src="https://github.com/sponsors/tcconnally/button" title="Sponsor tcconnally" height="32" width="114"></iframe>
       </div>
+    </div>
+    <div class="provenance" aria-label="Live runtime provenance">
+      <div class="provenance-head">
+        <span class="provenance-label">Live runtime provenance</span>
+        <span id="provenance-status" class="provenance-status">checking self-hosted runtime…</span>
+      </div>
+      <div class="provenance-grid">
+        <div class="provenance-item"><span>runtime</span><strong id="provenance-runtime">self-hosted Greg container</strong></div>
+        <div class="provenance-item"><span>Vault</span><strong id="provenance-vault">real binary</strong></div>
+        <div class="provenance-item"><span>source</span><strong id="provenance-source">GitHub main</strong></div>
+        <div class="provenance-item"><span>Ledger evidence</span><strong id="provenance-ledger">optional</strong></div>
+      </div>
+      <div class="provenance-actions">
+        <button id="inspect-evidence" type="button">Inspect Ledger evidence</button>
+        <a href="https://github.com/Perseus-Computing-LLC/perseus-vault-demo">Inspect deployed source ↗</a>
+      </div>
+      <div id="evidence-output" class="evidence-output output" role="status"></div>
     </div>
     <details class="sponsor-card-wrap">
       <summary class="sponsor-card-summary">
@@ -721,6 +753,54 @@ select { min-width: 0; max-width: 100%; }
   }
   watchSponsorEmbed(".sponsor-button", ".support-actions");
   watchSponsorEmbed(".sponsor-card", ".sponsor-card-wrap");
+
+  async function loadProvenance() {
+    try {
+      const response = await fetch("/api/provenance", { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok || data.error) throw new Error(data.error || "runtime unavailable");
+      $("provenance-runtime").textContent = data.runtime || "self-hosted runtime";
+      $("provenance-vault").textContent = data.vault && data.vault.version ? `Vault ${data.vault.version}` : "real binary";
+      $("provenance-source").textContent = data.source && data.source.revision ? data.source.revision : "GitHub main";
+      $("provenance-ledger").textContent = data.ledger && data.ledger.available ? "configured" : "optional / not configured";
+      $("provenance-status").textContent = "live · boundary disclosed";
+    } catch (error) {
+      $("provenance-status").textContent = "runtime details unavailable";
+      $("provenance-status").style.color = "var(--red)";
+    }
+  }
+
+  async function inspectEvidence() {
+    const button = $("inspect-evidence");
+    const output = $("evidence-output");
+    button.disabled = true;
+    button.textContent = "Inspecting…";
+    output.className = "evidence-output output show";
+    output.textContent = "Checking whether this deployment has an optional Ledger evidence path…";
+    try {
+      const response = await fetch("/api/evidence", { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok || data.error) throw new Error(data.error || "evidence path unavailable");
+      output.replaceChildren();
+      const text = document.createElement("div");
+      text.textContent = data.message || "Ledger evidence path configured.";
+      const link = document.createElement("a");
+      link.href = data.audit_url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "Open the scoped audit receipt ↗";
+      output.append(text, document.createElement("br"), link);
+      toast("Ledger evidence path is configured for inspection.");
+    } catch (error) {
+      output.textContent = "No public Ledger receipt is configured for this demo yet. The memory loop remains fully usable; no evidence claim is being invented.";
+      toast("Optional Ledger evidence is not configured.", true);
+    } finally {
+      button.disabled = false;
+      button.textContent = "Inspect Ledger evidence";
+    }
+  }
+  $("inspect-evidence").addEventListener("click", inspectEvidence);
+  loadProvenance();
 })();
 </script>
 </body>

@@ -7,7 +7,11 @@ RUN mkdir -p /data && chown -R 10001:10001 /app /data
 
 ENV PERSEUS_VAULT_BIN=/usr/local/bin/perseus-vault \
     DEMO_DB=/data/demo.db \
-    PORT=8092
+    PORT=8092 \
+    VAULT_VERSION=2.22.0 \
+    SOURCE_REPOSITORY=https://github.com/Perseus-Computing-LLC/perseus-vault-demo \
+    SOURCE_REVISION=main \
+    LEDGER_URL=https://ledger.perseus.observer
 EXPOSE 8092
 
 USER 10001:10001
