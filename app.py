@@ -19,6 +19,15 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
 PERSEUS_VAULT = os.environ.get("PERSEUS_VAULT_BIN", "/usr/local/bin/perseus-vault")
+VAULT_IMAGE = os.environ.get("VAULT_IMAGE", "local/perseus-vault-demo:aesthetic-collapsible")
+VAULT_VERSION = os.environ.get("VAULT_VERSION", "2.22.0")
+SOURCE_REPOSITORY = os.environ.get(
+    "SOURCE_REPOSITORY", "https://github.com/Perseus-Computing-LLC/perseus-vault-demo"
+)
+SOURCE_REVISION = os.environ.get("SOURCE_REVISION", "main")
+LEDGER_URL = os.environ.get("LEDGER_URL", "https://ledger.perseus.observer")
+LEDGER_ORG = os.environ.get("LEDGER_ORG", "")
+LEDGER_EXTERNAL_REF = os.environ.get("LEDGER_EXTERNAL_REF", "vault-demo")
 DB = os.environ.get("DEMO_DB", "/data/demo.db")
 PORT = int(os.environ.get("PORT", "8092"))
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -168,7 +177,44 @@ class Handler(BaseHTTPRequestHandler):
             with open(os.path.join(HERE, "index.html"), "rb") as handle:
                 return self._send(200, handle.read(), "text/html; charset=utf-8")
         if path == "/healthz":
-            return self._send(200, {"ok": True})
+            return self._send(200, {
+                "ok": True,
+                "service": "perseus-vault-demo",
+                "runtime": "greg",
+                "vault_version": VAULT_VERSION,
+                "source_revision": SOURCE_REVISION,
+            })
+        if path == "/api/provenance":
+            return self._send(200, {
+                "service": "perseus-vault-demo",
+                "runtime": "self-hosted Greg container",
+                "sandbox": "browser-scoped workspace; never production data",
+                "vault": {
+                    "binary": PERSEUS_VAULT,
+                    "version": VAULT_VERSION,
+                },
+                "source": {
+                    "repository": SOURCE_REPOSITORY,
+                    "revision": SOURCE_REVISION,
+                },
+                "ledger": {
+                    "available": bool(LEDGER_URL and LEDGER_ORG),
+                    "url": LEDGER_URL,
+                    "external_ref": LEDGER_EXTERNAL_REF,
+                    "mode": "optional evidence inspection; no demo claim is fabricated",
+                },
+            })
+        if path == "/api/evidence":
+            if not LEDGER_URL or not LEDGER_ORG:
+                return self._send(503, {"error": "optional Ledger evidence is not configured"})
+            return self._send(200, {
+                "available": True,
+                "message": "Ledger evidence inspection is configured for this demo deployment.",
+                "ledger_url": LEDGER_URL,
+                "organization": LEDGER_ORG,
+                "external_ref": LEDGER_EXTERNAL_REF,
+                "audit_url": f"{LEDGER_URL}/api/audit?org={LEDGER_ORG}&external_ref={LEDGER_EXTERNAL_REF}",
+            })
         return self._send(404, {"error": "not found"})
 
     def do_POST(self) -> None:
