@@ -23,6 +23,7 @@ runtime contract:
 - public origin port: `8092`
 - restart policy: `unless-stopped`
 
-`LEDGER_ORG` is intentionally not committed; configure it as a protected
-Portainer environment value only if the optional scoped evidence link is
-enabled.
+`LEDGER_ORG` and `LEDGER_API_KEY` are intentionally not committed; configure
+them as protected Portainer environment values only if the optional scoped
+evidence inspection is enabled. The wrapper returns only a sanitized receipt
+summary and never sends raw Ledger events or the key to the browser.

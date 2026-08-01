@@ -16,8 +16,10 @@ services:
       SOURCE_REPOSITORY: https://github.com/Perseus-Computing-LLC/perseus-vault-demo
       SOURCE_REVISION: main
       LEDGER_URL: https://ledger.perseus.observer
-      # Set LEDGER_ORG only in Portainer's protected environment values when
-      # enabling the optional scoped evidence inspection link.
+      # Set LEDGER_ORG and LEDGER_API_KEY only in Portainer's protected
+      # environment values when enabling scoped evidence inspection.
+      LEDGER_ORG: ${LEDGER_ORG:-}
+      LEDGER_API_KEY: ${LEDGER_API_KEY:-}
       LEDGER_EXTERNAL_REF: vault-demo
     volumes:
       - perseus-vault-demo-data:/data
