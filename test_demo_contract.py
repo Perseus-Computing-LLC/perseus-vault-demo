@@ -31,6 +31,10 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('window.scrollTo({ top:', self.html)
         self.assertIn('runStory();', self.html)
         self.assertIn('complete · capture → recall → prepare', self.html)
+        self.assertIn('Phase 1:', self.html)
+        self.assertIn('Phase 2:', self.html)
+        self.assertIn('Phase 3:', self.html)
+        self.assertIn('Phase 4:', self.html)
 
     def test_empty_states_explain_the_next_observable_step(self) -> None:
         self.assertIn(

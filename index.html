@@ -488,11 +488,11 @@ select { min-width: 0; max-width: 100%; }
 
   const stories = {
     deploy: {
-      query: "What should I know before deploying the billing migration?",
+      query: "What must I know before changing the billing migration?",
       memories: [
-        ["decision", "rollback-before-prod", "Billing migrations require a rollback rehearsal before production deploy."],
-        ["convention", "friday-freeze", "Production deploys freeze after 3pm Friday unless the incident commander approves an exception."],
-        ["fact", "billing-database", "The billing service uses Postgres 16 logical replication; schema changes must be backward compatible during rollout."]
+        ["decision", "rollback-rehearsal", "Billing migrations require a rollback rehearsal on staging before production deploy."],
+        ["convention", "deployment-freeze", "Production deploys are frozen Friday afternoon unless an emergency mitigation is approved."],
+        ["fact", "replication-mode", "The billing service uses logical replication; schema changes must be backward compatible."]
       ]
     },
     onboarding: {
@@ -737,22 +737,47 @@ select { min-width: 0; max-width: 100%; }
     const button = $("run-story");
     const story = scenario();
     button.disabled = true; button.textContent = "Running…";
-    setStoryState("capturing decisions…", "running");
+
+    // Start with a fresh session to ensure the "Before" state is actually empty.
+    session = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
+    localStorage.setItem(sessionKey, session);
+
     try {
-      for (const [category, key, text] of story.memories) {
-        await remember(text, key, category, true);
-      }
       $("query").value = story.query;
-      setStoryState("recalling the next task…", "running");
-      const hits = await recall(true);
-      if (!hits.length) throw new Error("The story captured memories but recall returned no matches.");
-      setStoryState("preparing agent context…", "running");
+
+      // Phase 1: Show the rediscovery cost (nothing found)
+      setStoryState("Phase 1: Agent starts without team context…", "running");
+      const beforeHits = await recall(true);
+      if (beforeHits.length) throw new Error("Sandbox isolation failure: session not empty.");
+      setStoryState("No context found. The agent would have to rediscover these facts.", "running");
+      await new Promise(r => setTimeout(r, 1500));
+
+      // Phase 2: Teach Vault
+      setStoryState("Phase 2: Teaching Vault the team decisions…", "running");
+      for (const [category, key, text] of story.memories) {
+        setStoryState(`Teaching Vault: ${key}...`, "running");
+        await remember(text, key, category, true);
+        await new Promise(r => setTimeout(r, 600));
+      }
+
+      // Phase 3: Successful Recall
+      setStoryState("Phase 3: Starting the task again with Vault…", "running");
+      const afterHits = await recall(true);
+      if (!afterHits.length) throw new Error("Vault recall failed to find the captured memories.");
+
+      // Phase 4: Prepare Context
+      setStoryState("Phase 4: Preparing bounded agent context…", "running");
       await prepareContext(true);
+
       setStoryState("complete · capture → recall → prepare", "success");
-      toast("Story complete: capture → recall → prepare. That is the loop.");
+      toast("Demo complete: Vault saved the context for the next session.");
     } catch (error) {
       setStoryState(error.message, "error");
-    } finally { button.disabled = false; button.textContent = "Run the demo"; }
+      toast(error.message, true);
+    } finally {
+      button.disabled = false;
+      button.textContent = "Run the demo";
+    }
   }
 
   $("scenario").addEventListener("change", () => fillScenario());
