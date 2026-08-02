@@ -105,6 +105,18 @@ input { width: 100%; }
 .story-status { color: var(--quiet); font: 12px var(--mono); }
 .story-status[data-state="success"] { color: var(--green); }
 .story-status[data-state="error"] { color: var(--red); }
+.proof-rail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin: 12px 0 0; }
+.proof-phase { min-width: 0; padding: 13px 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(18, 24, 34, .64); }
+.proof-phase[data-state="active"] { border-color: rgba(243, 189, 98, .52); background: rgba(243, 189, 98, .07); }
+.proof-phase[data-state="complete"] { border-color: rgba(85, 217, 154, .38); background: rgba(85, 217, 154, .06); }
+.proof-phase[data-state="error"] { border-color: rgba(255, 143, 133, .55); background: rgba(255, 143, 133, .07); }
+.proof-phase-label { color: var(--quiet); font: 600 10px var(--mono); letter-spacing: .12em; }
+.proof-phase[data-state="active"] .proof-phase-label { color: var(--amber); }
+.proof-phase[data-state="complete"] .proof-phase-label { color: var(--green); }
+.proof-phase[data-state="error"] .proof-phase-label { color: var(--red); }
+.proof-phase h3 { margin: 7px 0 3px; font-size: 14px; }
+.proof-phase-detail { min-height: 38px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.run-boundary { margin: 10px 2px 0; color: var(--quiet); font: 11px/1.5 var(--mono); }
 .workspace { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 14px; padding: 14px; background: rgba(15, 19, 27, .72); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 14px 14px; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
 .panel-kicker { color: var(--violet); font: 600 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
@@ -129,6 +141,15 @@ select { min-width: 0; max-width: 100%; }
 .output.empty { display: grid; place-items: center; min-height: 96px; color: var(--quiet); font-size: 12px; text-align: center; }
 .output.success { border-color: rgba(85, 217, 154, .34); box-shadow: inset 3px 0 0 var(--green); }
 .output pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #cbd7e4; font: 12px/1.6 var(--mono); }
+.capture-log { margin-top: 17px; padding-top: 13px; border-top: 1px solid var(--line); }
+.capture-list { margin-top: 8px; color: var(--muted); }
+.capture-list:empty::before { content: "Nothing captured yet in this scope."; color: var(--quiet); font-size: 12px; }
+.capture-item { padding: 8px 0; border-bottom: 1px solid #1e2937; }
+.capture-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.capture-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.capture-item-kind { color: var(--violet); font: 10px var(--mono); text-transform: uppercase; }
+.capture-item-key { color: var(--quiet); font: 11px var(--mono); overflow-wrap: anywhere; text-align: right; }
+.capture-item-text { margin: 3px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
 .hit { padding: 10px 0; border-bottom: 1px solid #1e2937; }
 .hit:last-child { border-bottom: 0; padding-bottom: 0; }
 .hit-top { display: flex; align-items: center; justify-content: space-between; gap: 9px; }
@@ -139,6 +160,13 @@ select { min-width: 0; max-width: 100%; }
 .hit-actions button { border: 1px solid var(--line); border-radius: 6px; padding: 4px 7px; color: var(--muted); background: transparent; font-size: 11px; }
 .hit-actions button:hover { color: var(--green); border-color: var(--green-deep); }
 .confidence { color: var(--green); font: 11px var(--mono); }
+.selection-summary { margin-bottom: 8px; padding: 9px 10px; border: 1px solid rgba(85, 217, 154, .22); border-radius: 7px; background: rgba(85, 217, 154, .05); color: var(--muted); font-size: 12px; line-height: 1.5; }
+.selection-summary strong { color: var(--text); }
+.selection-omitted { margin: 5px 0 0; color: var(--quiet); font-size: 11px; }
+.context-tools { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 9px; }
+.context-meta, .context-copy-status { color: var(--quiet); font: 11px var(--mono); }
+.context-copy-status { color: var(--green); }
+.context-tools .btn { flex: 0 0 auto; }
 .value-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 0; }
 .value-cell { border: 1px solid var(--line); border-radius: 10px; padding: 13px; background: rgba(18, 24, 34, .7); }
 .value-number { color: var(--text); font: 600 22px var(--mono); }
@@ -220,6 +248,7 @@ select { min-width: 0; max-width: 100%; }
   .shell { width: min(100% - 28px, 1180px); }
   .topbar-inner { min-height: 59px; }
   .workspace, .compare { grid-template-columns: 1fr; }
+  .proof-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .value-strip { grid-template-columns: repeat(2, 1fr); }
   .experience-header { display: block; }
   .experience-header p { margin-top: 10px; }
@@ -233,6 +262,7 @@ select { min-width: 0; max-width: 100%; }
   .support-actions { width: 100%; }
   .sponsor-card-wrap { padding: 12px; }
   .provenance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .proof-phase-detail { min-height: 0; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
 </style>
@@ -273,20 +303,24 @@ select { min-width: 0; max-width: 100%; }
       </div>
       <aside class="flow-card" aria-label="What this demo demonstrates">
         <div class="flow-head">
-          <div class="flow-label">Capture → recall → prepare context</div>
+          <div class="flow-label">Before → teach → after → use</div>
           <div class="live-dot">REAL VAULT BINARY</div>
         </div>
         <div class="flow-step">
           <div class="step-number">01</div>
-          <div><h3>Capture the decision</h3><p>“Deploys freeze Friday afternoon until rollback is rehearsed.”</p><span class="flow-code">perseus_vault_remember(...)</span></div>
+          <div><h3>See the empty task</h3><p>A fresh scope starts with zero relevant memories.</p><span class="flow-code">perseus_vault_recall(...)</span></div>
         </div>
         <div class="flow-step">
           <div class="step-number">02</div>
-          <div><h3>Ask from a later session</h3><p>“What must I know before changing the billing migration?”</p><span class="flow-code">perseus_vault_recall(mode="hybrid")</span></div>
+          <div><h3>Teach Vault the decisions</h3><p>“Deploys freeze Friday afternoon until rollback is rehearsed.”</p><span class="flow-code">perseus_vault_remember(...)</span></div>
         </div>
         <div class="flow-step">
           <div class="step-number">03</div>
-          <div><h3>Prepare the right context</h3><p>Build a focused block, then optionally mark the retrieved guidance useful or followed.</p><span class="flow-code">perseus_vault_context → follow</span></div>
+          <div><h3>Retrieve the relevant subset</h3><p>“What must I know before changing the billing migration?”</p><span class="flow-code">perseus_vault_recall(mode="hybrid")</span></div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">04</div>
+          <div><h3>Prepare usable context</h3><p>Copy the bounded block an agent or workflow can inspect before reasoning.</p><span class="flow-code">perseus_vault_context → follow</span></div>
         </div>
       </aside>
     </div>
@@ -313,10 +347,34 @@ select { min-width: 0; max-width: 100%; }
           <option value="incident">Incident response</option>
         </select>
         <button id="run-story" class="btn btn-primary btn-small" type="button">Run the demo</button>
-        <button id="reset" class="btn btn-small" type="button">Reset demo view</button>
+        <button id="reset" class="btn btn-small" type="button">Start fresh scope</button>
       </div>
       <div id="story-status" class="story-status" role="status" aria-live="polite" data-state="ready">ready · browser session scoped</div>
     </div>
+
+    <div class="proof-rail" aria-label="Live before and after proof">
+      <article id="phase-before" class="proof-phase" data-state="ready">
+        <div class="proof-phase-label">01 · BEFORE</div>
+        <h3>Fresh task</h3>
+        <p id="phase-before-detail" class="proof-phase-detail">0 relevant memories · fresh scope</p>
+      </article>
+      <article id="phase-teach" class="proof-phase" data-state="ready">
+        <div class="proof-phase-label">02 · TEACH</div>
+        <h3>Capture decisions</h3>
+        <p id="phase-teach-detail" class="proof-phase-detail">0 captured in this scope</p>
+      </article>
+      <article id="phase-after" class="proof-phase" data-state="ready">
+        <div class="proof-phase-label">03 · AFTER</div>
+        <h3>Relevant subset</h3>
+        <p id="phase-after-detail" class="proof-phase-detail">Waiting for a task question</p>
+      </article>
+      <article id="phase-use" class="proof-phase" data-state="ready">
+        <div class="proof-phase-label">04 · USE</div>
+        <h3>Bounded context</h3>
+        <p id="phase-use-detail" class="proof-phase-detail">Waiting for a context block</p>
+      </article>
+    </div>
+    <p class="run-boundary" role="note">Each run starts with a fresh opaque browser scope so the comparison is deterministic: BEFORE is empty, TEACH writes into that scope, and AFTER reads it back. A reset does not claim that prior browser data persisted.</p>
 
     <div class="workspace">
       <section class="panel" aria-labelledby="teach-title">
@@ -350,6 +408,10 @@ select { min-width: 0; max-width: 100%; }
           <button id="remember" class="btn btn-violet btn-small" type="button">Remember this</button>
           <span id="remember-status" class="story-status">writes to the real demo Vault</span>
         </div>
+        <div class="capture-log" aria-label="Captured memories in this scope">
+          <div class="operation-head"><span class="operation-title">Captured in this scope</span><span id="capture-count" class="operation-time">0</span></div>
+          <div id="capture-list" class="capture-list" role="list" aria-live="polite"></div>
+        </div>
       </section>
 
       <section class="panel" aria-labelledby="recall-title">
@@ -373,16 +435,21 @@ select { min-width: 0; max-width: 100%; }
         <div class="operation">
           <div class="operation-head"><span class="operation-title">Prepared context</span><span id="context-time" class="operation-time"></span></div>
           <div id="context-output" class="output empty" role="status" aria-live="polite">Run the demo to see the bounded context block an agent can read before reasoning.</div>
+          <div class="context-tools">
+            <span id="context-meta" class="context-meta">No context prepared yet.</span>
+            <span id="context-copy-status" class="context-copy-status" role="status" aria-live="polite"></span>
+            <button id="copy-context" class="btn btn-small" type="button" disabled>Copy context</button>
+          </div>
           <div class="panel-actions"><button id="prepare" class="btn btn-small" type="button">Prepare context for this task</button></div>
         </div>
       </section>
     </div>
 
     <div class="value-strip" aria-label="Demo activity">
-      <div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">memories stored</div></div>
-      <div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">relevant hits</div></div>
-      <div class="value-cell"><div id="stat-context" class="value-number">0</div><div class="value-label">context blocks prepared</div></div>
-      <div class="value-cell"><div id="stat-followed" class="value-number">0</div><div class="value-label">guidance marked useful</div></div>
+      <div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">memories captured this run</div></div>
+      <div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">relevant memories returned</div></div>
+      <div class="value-cell"><div id="stat-context" class="value-number">0</div><div class="value-label">context blocks prepared this run</div></div>
+      <div class="value-cell"><div id="stat-followed" class="value-number">0</div><div class="value-label">useful feedback this run</div></div>
     </div>
 
     <div class="compare">
@@ -475,7 +542,7 @@ select { min-width: 0; max-width: 100%; }
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const sessionKey = "perseus-vault-demo-session-v2";
+  const sessionKey = "perseus-vault-demo-session-v3";
   let session = localStorage.getItem(sessionKey);
   if (!session) {
     session = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
@@ -483,8 +550,12 @@ select { min-width: 0; max-width: 100%; }
   }
   let mode = "hybrid";
   let lastHits = [];
-  const statsKey = "perseus-vault-demo-stats-v2";
-  let stats = Object.assign({ stored: 0, hits: 0, contexts: 0, followed: 0 }, JSON.parse(localStorage.getItem(statsKey) || "{}"));
+  let lastContextText = "";
+  let activePhase = "";
+  let storyRunning = false;
+  let storyTargetCount = 0;
+  let capturedMemories = [];
+  let stats = { stored: 0, hits: 0, contexts: 0, followed: 0 };
 
   const stories = {
     deploy: {
@@ -514,7 +585,6 @@ select { min-width: 0; max-width: 100%; }
   };
 
   function saveStats() {
-    localStorage.setItem(statsKey, JSON.stringify(stats));
     $("stat-stored").textContent = stats.stored;
     $("stat-hits").textContent = stats.hits;
     $("stat-context").textContent = stats.contexts;
@@ -566,6 +636,94 @@ select { min-width: 0; max-width: 100%; }
     el.dataset.state = state || "ready";
   }
 
+  function setPhase(id, state, detail) {
+    const phase = $(`phase-${id}`);
+    const detailEl = $(`phase-${id}-detail`);
+    if (!phase || !detailEl) return;
+    phase.dataset.state = state;
+    detailEl.textContent = detail;
+    if (state === "active") activePhase = id;
+  }
+
+  function resetPhases() {
+    activePhase = "";
+    setPhase("before", "ready", "0 relevant memories · fresh scope");
+    setPhase("teach", "ready", "0 captured in this scope");
+    setPhase("after", "ready", "Waiting for a task question");
+    setPhase("use", "ready", "Waiting for a context block");
+  }
+
+  function memoryIdentity(item) {
+    return String((item && (item.key || item.id || item.entity_id)) || itemText(item));
+  }
+
+  function renderCaptures() {
+    const list = $("capture-list");
+    list.replaceChildren();
+    $("capture-count").textContent = String(capturedMemories.length);
+    capturedMemories.forEach((memory) => {
+      const row = document.createElement("div");
+      row.className = "capture-item";
+      row.setAttribute("role", "listitem");
+      const top = document.createElement("div");
+      top.className = "capture-item-top";
+      const kind = document.createElement("span");
+      kind.className = "capture-item-kind";
+      kind.textContent = memory.category;
+      const key = document.createElement("span");
+      key.className = "capture-item-key";
+      key.textContent = memory.key;
+      top.append(kind, key);
+      const text = document.createElement("p");
+      text.className = "capture-item-text";
+      text.textContent = memory.text;
+      row.append(top, text);
+      list.appendChild(row);
+    });
+  }
+
+  function recordCaptured(text, key, category) {
+    const memory = {
+      text: text.trim(),
+      key: String(key || "unlabeled"),
+      category: category || "decision"
+    };
+    const identity = `${memory.category}:${memory.key === "unlabeled" ? memory.text : memory.key}`;
+    const existing = capturedMemories.findIndex((item) => item.identity === identity);
+    memory.identity = identity;
+    if (existing >= 0) capturedMemories[existing] = memory;
+    else capturedMemories.push(memory);
+    stats.stored = capturedMemories.length;
+    saveStats();
+    renderCaptures();
+    if (storyRunning) {
+      setPhase("teach", "active", `${capturedMemories.length} of ${storyTargetCount} decisions captured`);
+    } else {
+      setPhase("teach", "complete", `${capturedMemories.length} captured in this scope`);
+    }
+  }
+
+  function resetRunState() {
+    session = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
+    localStorage.setItem(sessionKey, session);
+    lastHits = [];
+    lastContextText = "";
+    storyTargetCount = 0;
+    capturedMemories = [];
+    stats = { stored: 0, hits: 0, contexts: 0, followed: 0 };
+    saveStats();
+    resetPhases();
+    renderCaptures();
+    setOutput("recall-output", "Run the demo to see the matching decision appear here.", true);
+    setOutput("context-output", "Run the demo to see the bounded context block an agent can read before reasoning.", true);
+    $("recall-time").textContent = "";
+    $("context-time").textContent = "";
+    $("context-meta").textContent = "No context prepared yet.";
+    $("context-copy-status").textContent = "";
+    $("copy-context").disabled = true;
+    setStatus("remember-status", "writes to the real demo Vault");
+  }
+
   function setOutput(id, content, empty, success = false) {
     const el = $(id);
     el.className = "output" + (empty ? " empty" : "") + (success ? " success" : "");
@@ -598,6 +756,25 @@ select { min-width: 0; max-width: 100%; }
   }
 
   function renderHits(items) {
+    const wrapper = document.createElement("div");
+    const summary = document.createElement("div");
+    summary.className = "selection-summary";
+    const selected = document.createElement("strong");
+    if (capturedMemories.length) {
+      selected.textContent = `Vault selected ${items.length} of ${capturedMemories.length} captured memories for this task.`;
+    } else {
+      selected.textContent = `Vault returned ${items.length} relevant memories for this task.`;
+    }
+    summary.appendChild(selected);
+    const selectedKeys = new Set(items.map(memoryIdentity));
+    const omitted = capturedMemories.filter((memory) => !selectedKeys.has(memory.key));
+    if (omitted.length) {
+      const omittedText = document.createElement("p");
+      omittedText.className = "selection-omitted";
+      omittedText.textContent = `Left out for this task: ${omitted.map((memory) => memory.key).join(", ")}. Captured context stays out when it is not selected for the question.`;
+      summary.appendChild(omittedText);
+    }
+    wrapper.appendChild(summary);
     const fragment = document.createDocumentFragment();
     items.forEach((item) => {
       const row = document.createElement("article");
@@ -628,7 +805,8 @@ select { min-width: 0; max-width: 100%; }
       row.append(top, text, actions);
       fragment.appendChild(row);
     });
-    setOutput("recall-output", fragment, false, true);
+    wrapper.appendChild(fragment);
+    setOutput("recall-output", wrapper, false, true);
   }
 
   async function markFollowed(item, button) {
@@ -649,15 +827,17 @@ select { min-width: 0; max-width: 100%; }
   async function remember(text, key, category, silent) {
     const button = $("remember");
     if (!silent) { button.disabled = true; button.textContent = "Remembering…"; }
+    const textValue = (text || $("memory-text").value).trim();
+    const keyValue = (key || $("memory-key").value).trim();
+    const categoryValue = category || $("memory-category").value;
     try {
       const result = await post("/api/remember", {
-        text: text || $("memory-text").value.trim(),
-        key: key || $("memory-key").value.trim(),
-        category: category || $("memory-category").value,
-        type: category || $("memory-category").value
+        text: textValue,
+        key: keyValue,
+        category: categoryValue,
+        type: categoryValue
       });
-      stats.stored += 1;
-      saveStats();
+      recordCaptured(textValue, result.key || keyValue, categoryValue);
       if (!silent) {
         setStatus("remember-status", `stored · ${result.latency_ms}ms`);
         $("memory-text").value = "";
@@ -687,19 +867,25 @@ select { min-width: 0; max-width: 100%; }
       const result = await post("/api/recall", { query, mode });
       const items = itemsFrom(result);
       lastHits = items;
-      stats.hits += items.length;
+      stats.hits = items.length;
       saveStats();
       $("recall-time").textContent = `${result.latency_ms}ms · ${mode}`;
       if (!items.length) {
-        const diagnostic = result.data && result.data.diagnostic && result.data.diagnostic.hint;
-        setOutput("recall-output", diagnostic || "No matching memories yet. Teach Vault a decision first.", true);
+        setOutput("recall-output", "No relevant project context in this scope. Teach Vault a decision above, then ask this task again.", true);
+        if (!storyRunning) setPhase("after", "complete", "0 relevant memories returned");
       } else renderHits(items);
+      if (items.length && !storyRunning) {
+        const selectedKeys = new Set(items.map(memoryIdentity));
+        const omittedCount = capturedMemories.filter((memory) => !selectedKeys.has(memory.key)).length;
+        setPhase("after", "complete", `${items.length} selected · ${omittedCount} left out`);
+      }
       toast(items.length ? `${items.length} relevant memory${items.length === 1 ? "" : "ies"} surfaced.` : "No matches yet — try a broader question.", !items.length);
       return items;
     } catch (error) {
       setOutput("recall-output", error.message, true);
-      toast(error.message, true);
       if (propagate) throw error;
+      setPhase("after", "error", "Recall failed — no result to use");
+      toast(error.message, true);
       return [];
     } finally { button.disabled = false; button.textContent = "Recall with Vault"; }
   }
@@ -718,68 +904,125 @@ select { min-width: 0; max-width: 100%; }
     try {
       const result = await post("/api/context", { query });
       const data = result.data;
-      const text = (data && (data.context_markdown || data.markdown || data.text || data.context)) || result.text || (data && JSON.stringify(data, null, 2)) || "No context was prepared.";
+      const candidate = (data && (data.context_markdown || data.markdown || data.text || data.context)) || result.text || (data && JSON.stringify(data, null, 2)) || "No context was prepared.";
+      const text = typeof candidate === "string" ? candidate : JSON.stringify(candidate) || "";
+      if (!text.trim() || text === "No context was prepared.") throw new Error("Vault returned no usable context for this task.");
+      lastContextText = text;
       stats.contexts += 1;
       saveStats();
       $("context-time").textContent = `${result.latency_ms}ms · bounded + relevance-gated`;
-      setOutput("context-output", text, false, true);
+      const pre = document.createElement("pre");
+      pre.textContent = text;
+      setOutput("context-output", pre, false, true);
+      $("context-meta").textContent = `${text.length.toLocaleString()} characters · bounded to 2,400 max`;
+      $("context-copy-status").textContent = "";
+      $("copy-context").disabled = false;
+      if (!storyRunning) setPhase("use", "complete", `bounded block ready · ${lastHits.length} memories included`);
       toast("Context prepared — this is the block an agent can read before reasoning.");
       return result;
     } catch (error) {
       setOutput("context-output", error.message, true);
-      toast(error.message, true);
       if (propagate) throw error;
+      setPhase("use", "error", "Context preparation failed");
+      toast(error.message, true);
       return null;
     } finally { button.disabled = false; button.textContent = "Prepare context for this task"; }
+  }
+
+  async function copyContext() {
+    if (!lastContextText) return;
+    const copyButton = $("copy-context");
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(lastContextText);
+      } else {
+        const area = document.createElement("textarea");
+        try {
+          area.value = lastContextText;
+          area.setAttribute("readonly", "");
+          area.style.position = "fixed";
+          area.style.opacity = "0";
+          document.body.appendChild(area);
+          area.select();
+          if (!document.execCommand("copy")) throw new Error("clipboard unavailable");
+        } finally {
+          area.remove();
+        }
+      }
+      $("context-copy-status").textContent = `copied ${lastContextText.length.toLocaleString()} characters`;
+      copyButton.textContent = "Copied ✓";
+      toast("Bounded context copied to the clipboard.");
+      window.setTimeout(() => { copyButton.textContent = "Copy context"; }, 1800);
+    } catch (_) {
+      $("context-copy-status").textContent = "Copy unavailable — select the context block manually.";
+      toast("Copy was unavailable; the context remains selectable below.", true);
+    }
   }
 
   async function runStory() {
     const button = $("run-story");
     const story = scenario();
+    if (button.disabled) return;
     button.disabled = true; button.textContent = "Running…";
-
-    // Start with a fresh session to ensure the "Before" state is actually empty.
-    session = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
-    localStorage.setItem(sessionKey, session);
+    $("reset").disabled = true;
+    storyRunning = true;
+    resetRunState();
+    storyTargetCount = story.memories.length;
 
     try {
       $("query").value = story.query;
 
-      // Phase 1: Show the rediscovery cost (nothing found)
-      setStoryState("Phase 1: Agent starts without team context…", "running");
+      // BEFORE: prove that this fresh scope starts empty.
+      setPhase("before", "active", "Checking the fresh scope…");
+      setStoryState("BEFORE: checking the fresh task…", "running");
       const beforeHits = await recall(true);
       if (beforeHits.length) throw new Error("Sandbox isolation failure: session not empty.");
       $("recall-time").textContent = "0 relevant memories · fresh browser scope";
-      setOutput("recall-output", "No context found in this new task. The agent would have to rediscover these facts.", true);
-      toast("Phase 1 complete: no context found in the fresh task.");
-      setStoryState("No context found. The agent would have to rediscover these facts.", "running");
+      setOutput("recall-output", "No relevant project context in this fresh task. The agent would have to rediscover these facts.", true);
+      setPhase("before", "complete", "0 relevant memories · empty by design");
+      toast("BEFORE complete: the fresh task has no relevant context.");
+      setStoryState("BEFORE complete: no context found in the fresh task.", "running");
       await new Promise(r => setTimeout(r, 1500));
 
-      // Phase 2: Teach Vault
-      setStoryState("Phase 2: Teaching Vault the team decisions…", "running");
+      // TEACH: every visible progress step follows a successful remember call.
+      setPhase("teach", "active", `0 of ${storyTargetCount} decisions captured`);
+      setStoryState("TEACH: capturing the team decisions…", "running");
       for (const [category, key, text] of story.memories) {
-        setStoryState(`Teaching Vault: ${key}...`, "running");
+        setStoryState(`TEACH: capturing ${key}…`, "running");
         await remember(text, key, category, true);
         await new Promise(r => setTimeout(r, 600));
       }
+      if (capturedMemories.length !== storyTargetCount) throw new Error("Capture completed without all expected memories.");
+      setPhase("teach", "complete", `${capturedMemories.length} decisions captured`);
 
-      // Phase 3: Successful Recall
-      setStoryState("Phase 3: Starting the task again with Vault…", "running");
+      // AFTER: retrieve only what matches the later task.
+      setPhase("after", "active", "Asking the later-task question…");
+      setStoryState("AFTER: asking the task again with Vault…", "running");
       const afterHits = await recall(true);
       if (!afterHits.length) throw new Error("Vault recall failed to find the captured memories.");
+      const selectedKeys = new Set(afterHits.map(memoryIdentity));
+      const omittedCount = capturedMemories.filter((memory) => !selectedKeys.has(memory.key)).length;
+      setPhase("after", "complete", `${afterHits.length} selected · ${omittedCount} left out`);
+      setStoryState(`AFTER complete: ${afterHits.length} relevant memories selected.`, "running");
 
-      // Phase 4: Prepare Context
-      setStoryState("Phase 4: Preparing bounded agent context…", "running");
-      await prepareContext(true);
+      // USE: prepare the bounded artifact that a downstream workflow can read.
+      setPhase("use", "active", "Preparing the bounded context block…");
+      setStoryState("USE: preparing bounded context for the task…", "running");
+      const contextResult = await prepareContext(true);
+      if (!contextResult || !lastContextText) throw new Error("Context preparation returned no usable artifact.");
+      setPhase("use", "complete", `bounded block ready · ${afterHits.length} memories included`);
 
-      setStoryState("complete · capture → recall → prepare", "success");
-      toast("Demo complete: Vault saved the context for the next session.");
+      setStoryState("complete · before → teach → after → use", "success");
+      toast("Demo complete: the next task has a bounded, relevant context block.");
     } catch (error) {
+      if (activePhase) setPhase(activePhase, "error", `Stopped: ${error.message}`);
       setStoryState(error.message, "error");
       toast(error.message, true);
     } finally {
+      storyRunning = false;
       button.disabled = false;
       button.textContent = "Run the demo";
+      $("reset").disabled = false;
     }
   }
 
@@ -797,16 +1040,17 @@ select { min-width: 0; max-width: 100%; }
     }, 80);
   });
   $("reset").addEventListener("click", () => {
-    $("memory-text").value = ""; $("memory-key").value = ""; $("query").value = "";
-    setOutput("recall-output", "Run the demo to see the matching decision appear here.", true);
-    setOutput("context-output", "Run the demo to see the bounded context block an agent can read before reasoning.", true);
-    $("recall-time").textContent = ""; $("context-time").textContent = "";
-    setStoryState("ready · browser session scoped", "ready");
-    toast("View reset. Stored demo memories remain in this browser scope.");
+    storyRunning = false;
+    resetRunState();
+    fillScenario();
+    setStatus("remember-status", "writes to the real demo Vault");
+    setStoryState("ready · fresh browser scope", "ready");
+    toast("Started a fresh isolated scope. Previous demo memories are not visible here.");
   });
   $("remember").addEventListener("click", () => { remember().catch(() => {}); });
   $("recall").addEventListener("click", () => { recall().catch(() => {}); });
   $("prepare").addEventListener("click", () => { prepareContext().catch(() => {}); });
+  $("copy-context").addEventListener("click", () => { copyContext().catch(() => {}); });
   $("query").addEventListener("keydown", (event) => { if (event.key === "Enter") recall().catch(() => {}); });
   document.querySelectorAll("[data-mode]").forEach((button) => button.addEventListener("click", () => {
     mode = button.dataset.mode;

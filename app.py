@@ -154,6 +154,13 @@ def clean_type(value: Any) -> str:
 
 def result_payload(out: dict[str, Any], started: float, **meta: Any) -> tuple[int, dict[str, Any]]:
     body = dict(out)
+    # Vault may return internal retrieval diagnostics when a fresh demo scope
+    # has no embedded memories. Keep those implementation details server-side;
+    # the public product surface should explain the empty result in task terms.
+    if meta.get("operation") == "recall" and isinstance(body.get("data"), dict):
+        data = dict(body["data"])
+        data.pop("diagnostic", None)
+        body["data"] = data
     body["latency_ms"] = round((time.perf_counter() - started) * 1000, 1)
     body.update(meta)
     return (502 if out.get("error") else 200), body
