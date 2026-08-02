@@ -27,6 +27,8 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('id="hero-demo"', self.html)
         self.assertIn('Run the 60-second demo', self.html)
         self.assertIn('event.preventDefault()', self.html)
+        self.assertIn('headerHeight', self.html)
+        self.assertIn('window.scrollTo({ top:', self.html)
         self.assertIn('runStory();', self.html)
         self.assertIn('complete · capture → recall → prepare', self.html)
 
