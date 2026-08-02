@@ -749,6 +749,9 @@ select { min-width: 0; max-width: 100%; }
       setStoryState("Phase 1: Agent starts without team context…", "running");
       const beforeHits = await recall(true);
       if (beforeHits.length) throw new Error("Sandbox isolation failure: session not empty.");
+      $("recall-time").textContent = "0 relevant memories · fresh browser scope";
+      setOutput("recall-output", "No context found in this new task. The agent would have to rediscover these facts.", true);
+      toast("Phase 1 complete: no context found in the fresh task.");
       setStoryState("No context found. The agent would have to rediscover these facts.", "running");
       await new Promise(r => setTimeout(r, 1500));
 
