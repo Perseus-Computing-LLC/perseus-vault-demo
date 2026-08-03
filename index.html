@@ -1111,15 +1111,18 @@ select { min-width: 0; max-width: 100%; }
       output.replaceChildren();
       const lines = [
         `Receipt: ${data.receipt_version || "Ledger evidence receipt"}`,
-        `Events: ${data.event_count ?? 0} · chain ${data.chain_ok ? "verified" : "not verified"}`,
+        `Scope: ${data.scope_status === "scoped_receipt" ? "demo-scoped receipt" : "No demo-scoped Ledger events are available"}`,
+        `Organization chain: ${data.chain_status === "organization_chain_verified" ? "organization chain is verified" : "organization chain is not verified"}`,
+        `Events: ${data.event_count ?? 0}`,
         `Verified events: ${data.verified_events ?? "not reported"}`,
-        `Scope: ${data.external_ref || "vault-demo"}`,
+        `External reference: ${data.external_ref || "vault-demo"}`,
+        data.scope_message || "",
         "Raw event contents remain server-side; this panel shows only the sanitized receipt summary."
       ];
       const pre = document.createElement("pre");
       pre.textContent = lines.join("\n");
       output.appendChild(pre);
-      toast("Scoped Ledger evidence inspected.");
+      toast(data.scope_status === "scoped_receipt" ? "Scoped Ledger evidence inspected." : "No demo-scoped Ledger events are available.", data.scope_status !== "scoped_receipt");
     } catch (error) {
       output.textContent = "No public Ledger receipt is configured for this demo yet. The memory loop remains fully usable; no evidence claim is being invented.";
       toast("Optional Ledger evidence is not configured.", true);

@@ -195,14 +195,35 @@ def ledger_evidence() -> tuple[int, dict[str, Any]]:
         verification = {}
     if not isinstance(organization, dict):
         organization = {}
+    receipt_org = organization.get("id")
+    receipt_external_ref = receipt.get("external_ref") if isinstance(receipt, dict) else None
+    if receipt_org != LEDGER_ORG or receipt_external_ref != LEDGER_EXTERNAL_REF:
+        return 502, {"error": "Ledger evidence scope could not be verified"}
+    chain_ok = verification.get("chain_ok") is True
+    verified_events = verification.get("verified_events")
+    if not isinstance(verified_events, int) or isinstance(verified_events, bool) or verified_events < 0:
+        verified_events = None
+    scope_status = "scoped_receipt" if events else "no_scoped_events"
+    chain_status = (
+        "organization_chain_verified"
+        if chain_ok
+        else "organization_chain_unverified"
+    )
     return 200, {
         "available": True,
         "receipt_version": receipt.get("receipt_version"),
-        "organization_id": organization.get("id"),
-        "external_ref": receipt.get("external_ref", LEDGER_EXTERNAL_REF),
+        "organization_id": receipt_org,
+        "external_ref": receipt_external_ref,
         "event_count": len(events),
-        "chain_ok": verification.get("chain_ok"),
-        "verified_events": verification.get("verified_events"),
+        "scope_status": scope_status,
+        "chain_status": chain_status,
+        "scope_message": (
+            "A demo-scoped Ledger receipt is available."
+            if events
+            else "No demo-scoped Ledger events are available; the organization chain may still be verified."
+        ),
+        "chain_ok": chain_ok,
+        "verified_events": verified_events,
         "verification_method": verification.get("method"),
         "ledger_url": LEDGER_URL,
         "events_included": False,
