@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import re
+import json
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+import app
 from app import result_payload
 
 
@@ -133,6 +136,58 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('"organization_chain_verified"', self.app)
         self.assertIn("No demo-scoped Ledger events are available", self.html)
         self.assertIn("organization chain is verified", self.html)
+
+    def test_ledger_evidence_rejects_mismatched_scope_and_false_string(self) -> None:
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self, _limit):
+                return json.dumps({
+                    "organization": {"id": "other-org"},
+                    "external_ref": "other-ref",
+                    "events": [{"id": "unrelated"}],
+                    "verification": {"chain_ok": "false", "verified_events": "1"},
+                }).encode()
+
+        with patch.object(app, "LEDGER_URL", "https://ledger.example"), \
+             patch.object(app, "LEDGER_ORG", "demo-org"), \
+             patch.object(app, "LEDGER_API_KEY", "test-key"), \
+             patch.object(app, "LEDGER_EXTERNAL_REF", "vault-demo"), \
+             patch.object(app, "urlopen", return_value=Response()):
+            code, payload = app.ledger_evidence()
+        self.assertEqual(code, 502)
+        self.assertEqual(payload, {"error": "Ledger evidence scope could not be verified"})
+
+    def test_ledger_evidence_accepts_exact_empty_scope_without_truthiness(self) -> None:
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self, _limit):
+                return json.dumps({
+                    "organization": {"id": "demo-org"},
+                    "external_ref": "vault-demo",
+                    "events": [],
+                    "verification": {"chain_ok": True, "verified_events": 0},
+                }).encode()
+
+        with patch.object(app, "LEDGER_URL", "https://ledger.example"), \
+             patch.object(app, "LEDGER_ORG", "demo-org"), \
+             patch.object(app, "LEDGER_API_KEY", "test-key"), \
+             patch.object(app, "LEDGER_EXTERNAL_REF", "vault-demo"), \
+             patch.object(app, "urlopen", return_value=Response()):
+            code, payload = app.ledger_evidence()
+        self.assertEqual(code, 200)
+        self.assertEqual(payload["scope_status"], "no_scoped_events")
+        self.assertEqual(payload["chain_status"], "organization_chain_verified")
+        self.assertIs(payload["chain_ok"], True)
 
 
 if __name__ == "__main__":
