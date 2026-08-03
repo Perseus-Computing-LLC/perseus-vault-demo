@@ -195,12 +195,25 @@ def ledger_evidence() -> tuple[int, dict[str, Any]]:
         verification = {}
     if not isinstance(organization, dict):
         organization = {}
+    scope_status = "scoped_receipt" if events else "no_scoped_events"
+    chain_status = (
+        "organization_chain_verified"
+        if verification.get("chain_ok")
+        else "organization_chain_unverified"
+    )
     return 200, {
         "available": True,
         "receipt_version": receipt.get("receipt_version"),
         "organization_id": organization.get("id"),
         "external_ref": receipt.get("external_ref", LEDGER_EXTERNAL_REF),
         "event_count": len(events),
+        "scope_status": scope_status,
+        "chain_status": chain_status,
+        "scope_message": (
+            "A demo-scoped Ledger receipt is available."
+            if events
+            else "No demo-scoped Ledger events are available; the organization chain may still be verified."
+        ),
         "chain_ok": verification.get("chain_ok"),
         "verified_events": verification.get("verified_events"),
         "verification_method": verification.get("method"),

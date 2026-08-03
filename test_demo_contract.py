@@ -128,6 +128,12 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn("Prepare usable context", self.html)
         self.assertNotIn("Act with the right context", self.html)
 
+    def test_ledger_zero_event_state_is_explicit(self) -> None:
+        self.assertIn('"no_scoped_events"', self.app)
+        self.assertIn('"organization_chain_verified"', self.app)
+        self.assertIn("No demo-scoped Ledger events are available", self.html)
+        self.assertIn("organization chain is verified", self.html)
+
 
 if __name__ == "__main__":
     unittest.main()
