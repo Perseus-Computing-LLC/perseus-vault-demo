@@ -9,7 +9,7 @@ from urllib.error import URLError
 from unittest.mock import patch
 
 import app
-from app import result_payload
+from app import public_provenance, result_payload, write_is_not_serveable
 
 
 ROOT = Path(__file__).parent
@@ -28,7 +28,7 @@ class DemoContractTests(unittest.TestCase):
             "An open-source memory layer for AI agents and engineering teams.",
             self.html,
         )
-        self.assertIn("Store one decision. In a later task", self.html)
+        self.assertIn("Save one decision. In a later task", self.html)
         self.assertIn('rel="canonical"', self.html)
         self.assertIn('property="og:title"', self.html)
 
@@ -39,34 +39,34 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('headerHeight', self.html)
         self.assertIn('window.scrollTo({ top:', self.html)
         self.assertIn('runStory();', self.html)
-        self.assertIn('complete · before → teach → after → use', self.html)
-        for phase in ("BEFORE", "TEACH", "AFTER", "USE"):
+        self.assertIn('Complete · start → save → find → use', self.html)
+        for phase in ("START", "SAVE", "FIND", "USE"):
             self.assertIn(phase, self.html)
-        self.assertIn('No relevant project context in this fresh task.', self.html)
+        self.assertIn('This task starts with nothing saved.', self.html)
 
     def test_fresh_empty_state_is_explicit(self) -> None:
         self.assertIn('id="phase-before"', self.html)
-        self.assertIn("0 relevant memories · empty by design", self.html)
-        self.assertIn("The agent would have to rediscover these facts.", self.html)
-        self.assertIn("Each run starts with a fresh opaque browser scope", self.html)
+        self.assertIn("Nothing saved yet", self.html)
+        self.assertIn("these facts would have to be found again.", self.html)
+        self.assertIn("Every run starts with a clean, private demo session", self.html)
 
     def test_teaching_progress_shows_what_was_captured(self) -> None:
-        self.assertIn('Captured in this scope', self.html)
+        self.assertIn('Saved in this session', self.html)
         self.assertIn('id="capture-list"', self.html)
         self.assertIn('await remember(text, key, category, true);', self.html)
         self.assertIn('recordCaptured(textValue, result.key || keyValue, categoryValue);', self.html)
-        self.assertIn('decisions captured', self.html)
+        self.assertIn('decisions saved', self.html)
 
     def test_recall_explains_the_relevant_subset_and_omission(self) -> None:
-        self.assertIn('Vault selected ${items.length} of ${capturedMemories.length} captured memories for this task.', self.html)
-        self.assertIn('Left out for this task:', self.html)
+        self.assertIn('Vault found ${items.length} of ${capturedMemories.length} saved memories that fit this task.', self.html)
+        self.assertIn('Not used for this task:', self.html)
         self.assertIn('const omittedCount = capturedMemories.filter', self.html)
-        self.assertIn('Captured context stays out when it is not selected for the question.', self.html)
+        self.assertIn('Saved information stays out when it does not fit the question.', self.html)
 
     def test_context_is_bounded_and_copyable(self) -> None:
         self.assertIn('id="copy-context"', self.html)
         self.assertIn('navigator.clipboard.writeText(lastContextText)', self.html)
-        self.assertIn('characters · bounded to 2,400 max', self.html)
+        self.assertIn('characters · limit 2,400', self.html)
         self.assertIn('max_context_chars', self.app)
         self.assertIn('role="status" aria-live="polite"', self.html)
 
@@ -75,16 +75,16 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('function resetRunState()', self.html)
         self.assertIn('storyRunning = true;', self.html)
         self.assertIn('stats = { stored: 0, hits: 0, contexts: 0, followed: 0 };', self.html)
-        self.assertIn('Started a fresh isolated scope.', self.html)
+        self.assertIn('Started over with a private demo session.', self.html)
         self.assertNotIn('perseus-vault-demo-stats-v2', self.html)
 
     def test_empty_states_explain_the_next_observable_step(self) -> None:
         self.assertIn(
-            "Run the demo to see the matching decision appear here.",
+            "Run the demo to see the right memory appear here.",
             self.html,
         )
         self.assertIn(
-            "Run the demo to see the bounded context block an agent can read",
+            "Run the demo to see a short summary you can use to start the task.",
             self.html,
         )
         self.assertIn('aria-live="polite"', self.html)
@@ -123,17 +123,17 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('data.pop("diagnostic", None)', self.app)
 
     def test_value_receipt_is_scoped_to_real_deployments(self) -> None:
-        self.assertIn("REAL DEPLOYMENT ONLY", self.html)
+        self.assertIn("ONLY IN A REAL DEPLOYMENT", self.html)
         self.assertNotIn("LEDGER-VERIFIABLE</span>", self.html)
-        self.assertIn("not a customer savings number", self.html)
-        self.assertIn("Not populated by this browser demo", self.html)
+        self.assertIn("not a promise about customer savings", self.html)
+        self.assertIn("Not generated by this demo", self.html)
 
     def test_success_state_explains_the_observed_product_change(self) -> None:
         self.assertIn('id="outcome-summary"', self.html)
-        self.assertIn("Vault changed the starting point", self.html)
+        self.assertIn("The next task gets a head start", self.html)
         self.assertIn("function renderOutcome", self.html)
         self.assertIn("outcome.hidden = false", self.html)
-        self.assertIn("0 relevant memories", self.html)
+        self.assertIn("0 found", self.html)
 
     def test_context_public_projection_enforces_the_character_cap(self) -> None:
         self.assertEqual(app.public_context_text({"data": {"context_markdown": "ok"}}), "ok")
@@ -142,7 +142,7 @@ class DemoContractTests(unittest.TestCase):
 
     def test_context_browser_path_rejects_an_oversized_artifact(self) -> None:
         self.assertIn("if (text.length > 2400)", self.html)
-        self.assertIn("context exceeds the public 2,400-character bound", self.html)
+        self.assertIn("summary is longer than the public 2,400-character limit", self.html)
 
     def test_ledger_evidence_classifies_configuration_and_upstream_failures(self) -> None:
         with patch.object(app, "LEDGER_URL", ""):
@@ -171,8 +171,8 @@ class DemoContractTests(unittest.TestCase):
         self.assertEqual(payload["status"], "upstream_unavailable")
 
     def test_ledger_ui_distinguishes_unavailable_from_not_configured(self) -> None:
-        self.assertIn("Ledger evidence is temporarily unavailable", self.html)
-        self.assertIn("Ledger evidence is not configured", self.html)
+        self.assertIn("Supporting evidence is temporarily unavailable", self.html)
+        self.assertIn("Supporting evidence is not enabled", self.html)
         self.assertIn("data.status === \"upstream_unavailable\"", self.html)
 
     def test_public_response_headers_have_a_narrow_security_policy(self) -> None:
@@ -187,14 +187,47 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn("/healthz", dockerfile)
 
     def test_copy_does_not_claim_that_the_demo_executes_agent_actions(self) -> None:
-        self.assertIn("Prepare usable context", self.html)
+        self.assertIn("Save something worth remembering", self.html)
+        self.assertIn("Prepare this summary", self.html)
         self.assertNotIn("Act with the right context", self.html)
 
     def test_ledger_zero_event_state_is_explicit(self) -> None:
         self.assertIn('"no_scoped_events"', self.app)
         self.assertIn('"organization_chain_verified"', self.app)
-        self.assertIn("No demo-scoped Ledger events are available", self.html)
-        self.assertIn("organization chain is verified", self.html)
+        self.assertIn("No evidence from this demo is available", self.html)
+        self.assertIn("Record check:", self.html)
+
+    def test_public_surface_hides_internal_host_details(self) -> None:
+        for internal_term in (
+            "Greg",
+            "greg",
+            "self-hosted",
+            "source branch",
+            "GitHub main",
+            "Plutus",
+        ):
+            self.assertNotIn(internal_term, self.html)
+        self.assertIn("Hosted demo", self.html)
+        self.assertIn("Private demo session", self.html)
+        self.assertNotIn('"binary": PERSEUS_VAULT', self.app)
+        self.assertNotIn('"runtime": "greg"', self.app)
+        self.assertNotIn('"runtime": "self-hosted Greg container"', self.app)
+
+        payload = public_provenance()
+        encoded = json.dumps(payload)
+        self.assertNotIn("/usr/local/bin", encoded)
+        self.assertNotIn("LEDGER_API_KEY", encoded)
+        self.assertNotIn("external_ref", payload["ledger"])
+        self.assertNotIn("revision", payload["source"])
+        self.assertEqual(payload["runtime"], "hosted demo environment")
+
+    def test_pending_write_cannot_be_reported_as_a_saved_memory(self) -> None:
+        self.assertTrue(write_is_not_serveable({"data": {"serveable": False}}))
+        self.assertTrue(write_is_not_serveable({"data": {"pending_approval": True}}))
+        self.assertTrue(write_is_not_serveable({"data": {"proposed": True}}))
+        self.assertFalse(write_is_not_serveable({"data": {"serveable": True}}))
+        self.assertIn("write_not_serveable", self.app)
+        self.assertIn("This demo could not make that memory available yet", self.app)
 
     def test_ledger_evidence_rejects_mismatched_scope_and_false_string(self) -> None:
         class Response:

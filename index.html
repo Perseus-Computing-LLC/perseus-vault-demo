@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perseus Vault — memory that changes the next session</title>
-<meta name="description" content="Perseus Vault gives AI agents durable, inspectable memory across tasks. Store a decision, recall it later, and prepare bounded context in the real browser-scoped demo.">
+<meta name="description" content="Perseus Vault gives AI agents durable memory across tasks. Save a decision, find it later, and give the next task a short, useful summary in this live demo.">
 <link rel="canonical" href="https://vault-demo.perseus.observer/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://vault-demo.perseus.observer/">
 <meta property="og:title" content="Perseus Vault — persistent memory for AI agents">
-<meta property="og:description" content="Store one decision, recall it in a later task, and prepare bounded context an agent can use. Try the real browser-scoped demo.">
+<meta property="og:description" content="Save one decision, find it in a later task, and give the next task a short, useful summary. Try the live demo.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Perseus Vault — persistent memory for AI agents">
-<meta name="twitter:description" content="Try the real memory loop: capture, recall, and prepare bounded context for the next task.">
+<meta name="twitter:description" content="Try the real memory loop: save a decision, find it later, and start the next task with the right information.">
 <meta name="theme-color" content="#090b10">
 <style>
 :root {
@@ -154,7 +154,7 @@ select { min-width: 0; max-width: 100%; }
 .output pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #cbd7e4; font: 12px/1.6 var(--mono); }
 .capture-log { margin-top: 17px; padding-top: 13px; border-top: 1px solid var(--line); }
 .capture-list { margin-top: 8px; color: var(--muted); }
-.capture-list:empty::before { content: "Nothing captured yet in this scope."; color: var(--quiet); font-size: 12px; }
+.capture-list:empty::before { content: "Nothing saved yet in this session."; color: var(--quiet); font-size: 12px; }
 .capture-item { padding: 8px 0; border-bottom: 1px solid #1e2937; }
 .capture-item:last-child { border-bottom: 0; padding-bottom: 0; }
 .capture-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -285,12 +285,12 @@ select { min-width: 0; max-width: 100%; }
   <div class="shell topbar-inner">
     <a class="brand" href="https://perseus.observer/" aria-label="Perseus home">
       <span class="brand-mark" aria-hidden="true">⌁</span>
-      <span>Perseus Vault <span style="color:var(--quiet);font-weight:500">/ live sandbox</span></span>
+      <span>Perseus Vault <span style="color:var(--quiet);font-weight:500">/ browser demo</span></span>
     </a>
     <nav class="nav-links" aria-label="Primary">
       <a href="https://perseus.observer/vault/">Why Vault</a>
       <a href="https://github.com/Perseus-Computing-LLC/perseus-vault">Source</a>
-      <a href="https://github.com/Perseus-Computing-LLC/perseus-vault#55-mcp-tools">Capabilities</a>
+      <a href="https://github.com/Perseus-Computing-LLC/perseus-vault#55-mcp-tools">What it can do</a>
     </nav>
     <a class="mobile-source" href="https://github.com/Perseus-Computing-LLC/perseus-vault">Source ↗</a>
   </div>
@@ -303,158 +303,158 @@ select { min-width: 0; max-width: 100%; }
         <div class="eyebrow">Memory for the next task</div>
         <h1>Stop repeating the same <span class="accent">context</span> twice.</h1>
         <p class="hero-category">An open-source memory layer for AI agents and engineering teams.</p>
-        <p class="hero-lead">Store one decision. In a later task, Vault recalls the relevant memory and prepares a compact context block an agent or workflow can use.</p>
+        <p class="hero-lead">Save one decision. In a later task, Vault finds what matters and prepares a short summary an agent or workflow can use.</p>
         <div class="hero-actions">
           <a id="hero-demo" class="btn btn-primary" href="#try">Run the 60-second demo ↓</a>
           <a class="btn" href="https://github.com/Perseus-Computing-LLC/perseus-vault">Read the source ↗</a>
         </div>
-        <p class="hero-note">Uses the real Vault binary with isolated, browser-scoped data. No LLM call, production data, or claimed dollar savings.</p>
+        <p class="hero-note">This demo uses the real Vault engine. Your entries stay in this browser session; no AI model or production data is involved.</p>
         <div class="chips" aria-label="Demo properties">
-          <span class="chip">real Vault operations</span>
-          <span class="chip">browser-scoped sandbox</span>
-          <span class="chip">hybrid recall: keyword + semantic</span>
+          <span class="chip">Real Vault engine</span>
+          <span class="chip">Private demo session</span>
+          <span class="chip">Finds by meaning and keywords</span>
         </div>
       </div>
       <aside class="flow-card" aria-label="What this demo demonstrates">
         <div class="flow-head">
-          <div class="flow-label">Before → teach → after → use</div>
-          <div class="live-dot">REAL VAULT BINARY</div>
+          <div class="flow-label">See the memory loop</div>
+          <div class="live-dot">REAL VAULT ENGINE</div>
         </div>
         <div class="flow-step">
           <div class="step-number">01</div>
-          <div><h3>See the empty task</h3><p>A fresh scope starts with zero relevant memories.</p><span class="flow-code">perseus_vault_recall(...)</span></div>
+          <div><h3>Start with a blank slate</h3><p>A new demo session starts with nothing saved.</p><span class="flow-code">perseus_vault_recall(...)</span></div>
         </div>
         <div class="flow-step">
           <div class="step-number">02</div>
-          <div><h3>Teach Vault the decisions</h3><p>“Deploys freeze Friday afternoon until rollback is rehearsed.”</p><span class="flow-code">perseus_vault_remember(...)</span></div>
+          <div><h3>Save what matters</h3><p>“Deploys freeze Friday afternoon until rollback is rehearsed.”</p><span class="flow-code">perseus_vault_remember(...)</span></div>
         </div>
         <div class="flow-step">
           <div class="step-number">03</div>
-          <div><h3>Retrieve the relevant subset</h3><p>“What must I know before changing the billing migration?”</p><span class="flow-code">perseus_vault_recall(mode="hybrid")</span></div>
+          <div><h3>Find what matters</h3><p>“What must I know before changing the billing migration?”</p><span class="flow-code">perseus_vault_recall(mode="hybrid")</span></div>
         </div>
         <div class="flow-step">
           <div class="step-number">04</div>
-          <div><h3>Prepare usable context</h3><p>Copy the bounded block an agent or workflow can inspect before reasoning.</p><span class="flow-code">perseus_vault_context → follow</span></div>
+          <div><h3>Give the next task a head start</h3><p>Copy a short, focused summary before you start work.</p><span class="flow-code">perseus_vault_context → follow</span></div>
         </div>
       </aside>
     </div>
   </section>
 
-  <div class="shell trust-strip" aria-label="Product trust signals"><strong>Open source</strong><span>Runs locally</span><span>Browser sandbox</span><span>No production data</span></div>
-  <div class="shell sandbox"><strong>Sandbox boundary.</strong> This isolated database is for demonstration only. Entries are scoped to this browser session, rate-limited, and never enter production data. Resetting your browser session clears your demo scope; the full Vault runs locally under your control.</div>
+  <div class="shell trust-strip" aria-label="Product trust signals"><strong>Open source</strong><span>Real Vault engine</span><span>Private demo session</span><span>No production data</span></div>
+  <div class="shell sandbox"><strong>About this demo.</strong> This is a disposable demo space. Your entries stay in this browser session, are limited to keep the demo safe, and never mix with production data. Starting over clears this demo space; install Vault locally for your own data.</div>
 
   <section id="try" class="experience shell" tabindex="-1">
     <div class="experience-header">
       <div>
         <div class="eyebrow">Try it in under a minute</div>
-        <h2>Make the benefit observable.</h2>
+        <h2>See the difference.</h2>
       </div>
-      <p>Run the prepared story to store decisions, recall a later task, and prepare bounded context. Or use your own project decision.</p>
+      <p>Run the example or try a decision from your own project. You will see Vault save it, find it later, and prepare a short summary for the next task.</p>
     </div>
 
     <div class="story-bar">
       <div class="story-controls">
-        <label for="scenario">Story</label>
+        <label for="scenario">Example</label>
         <select id="scenario" aria-label="Choose a demo story">
           <option value="deploy">Production deploy</option>
           <option value="onboarding">New teammate onboarding</option>
           <option value="incident">Incident response</option>
         </select>
         <button id="run-story" class="btn btn-primary btn-small" type="button">Run the demo</button>
-        <button id="reset" class="btn btn-small" type="button">Start fresh scope</button>
+        <button id="reset" class="btn btn-small" type="button">Start over</button>
       </div>
-      <div id="story-status" class="story-status" role="status" aria-live="polite" data-state="ready">ready · browser session scoped</div>
+      <div id="story-status" class="story-status" role="status" aria-live="polite" data-state="ready">Ready · private demo session</div>
     </div>
 
-    <div class="proof-rail" aria-label="Live before and after proof">
+    <div class="proof-rail" aria-label="How the demo works">
       <article id="phase-before" class="proof-phase" data-state="ready">
-        <div class="proof-phase-label">01 · BEFORE</div>
-        <h3>Fresh task</h3>
-        <p id="phase-before-detail" class="proof-phase-detail">0 relevant memories · fresh scope</p>
+        <div class="proof-phase-label">01 · START</div>
+        <h3>Blank slate</h3>
+        <p id="phase-before-detail" class="proof-phase-detail">Nothing saved yet</p>
       </article>
       <article id="phase-teach" class="proof-phase" data-state="ready">
-        <div class="proof-phase-label">02 · TEACH</div>
-        <h3>Capture decisions</h3>
-        <p id="phase-teach-detail" class="proof-phase-detail">0 captured in this scope</p>
+        <div class="proof-phase-label">02 · SAVE</div>
+        <h3>Save what matters</h3>
+        <p id="phase-teach-detail" class="proof-phase-detail">0 saved in this session</p>
       </article>
       <article id="phase-after" class="proof-phase" data-state="ready">
-        <div class="proof-phase-label">03 · AFTER</div>
-        <h3>Relevant subset</h3>
-        <p id="phase-after-detail" class="proof-phase-detail">Waiting for a task question</p>
+        <div class="proof-phase-label">03 · FIND</div>
+        <h3>What Vault found</h3>
+        <p id="phase-after-detail" class="proof-phase-detail">Ask what you are about to do</p>
       </article>
       <article id="phase-use" class="proof-phase" data-state="ready">
         <div class="proof-phase-label">04 · USE</div>
-        <h3>Bounded context</h3>
-        <p id="phase-use-detail" class="proof-phase-detail">Waiting for a context block</p>
+        <h3>Ready-to-use summary</h3>
+        <p id="phase-use-detail" class="proof-phase-detail">Your short summary will appear here</p>
       </article>
     </div>
-    <p class="run-boundary" role="note">Each run starts with a fresh opaque browser scope so the comparison is deterministic: BEFORE is empty, TEACH writes into that scope, and AFTER reads it back. A reset does not claim that prior browser data persisted.</p>
+    <p class="run-boundary" role="note">Every run starts with a clean, private demo session so you can see the difference: START begins empty, SAVE adds decisions, and FIND retrieves only what fits the question. Starting over clears this demo session; it does not imply that an earlier session was saved.</p>
 
     <div class="workspace">
       <section class="panel" aria-labelledby="teach-title">
-        <div class="panel-kicker">Session 1 · capture</div>
-        <h3 id="teach-title">Give the agent a memory.</h3>
-        <p class="panel-intro">Store decisions, conventions, and corrections so a later task can retrieve them.</p>
-        <label class="field-label" for="memory-text">What should the team remember?</label>
+        <div class="panel-kicker">Step 1 · save a memory</div>
+        <h3 id="teach-title">Save something worth remembering.</h3>
+        <p class="panel-intro">Save a decision, team rule, or lesson so a later task can find it.</p>
+        <label class="field-label" for="memory-text">What should Vault remember?</label>
         <textarea id="memory-text" placeholder="Example: Billing migrations require a rollback rehearsal before production deploy."></textarea>
         <div class="sample-row" aria-label="Example memories">
-          <button class="sample" type="button" data-sample="deploy">deploy policy</button>
-          <button class="sample" type="button" data-sample="onboarding">team convention</button>
+          <button class="sample" type="button" data-sample="deploy">deployment rule</button>
+          <button class="sample" type="button" data-sample="onboarding">team rule</button>
           <button class="sample" type="button" data-sample="incident">incident lesson</button>
         </div>
         <div class="field-row">
           <div>
-            <label class="field-label" for="memory-key">Label <span style="color:var(--quiet)">(optional)</span></label>
+            <label class="field-label" for="memory-key">Short label <span style="color:var(--quiet)">(optional)</span></label>
             <input id="memory-key" placeholder="rollback-before-prod">
           </div>
           <div>
-            <label class="field-label" for="memory-category">Kind</label>
+            <label class="field-label" for="memory-category">Type</label>
             <select id="memory-category" aria-label="Memory kind">
-              <option value="decision">decision</option>
-              <option value="convention">convention</option>
-              <option value="lesson">lesson</option>
-              <option value="preference">preference</option>
-              <option value="fact">fact</option>
+              <option value="decision">Decision</option>
+              <option value="convention">Team rule</option>
+              <option value="lesson">Lesson</option>
+              <option value="preference">Preference</option>
+              <option value="fact">Fact</option>
             </select>
           </div>
         </div>
         <div class="panel-actions">
-          <button id="remember" class="btn btn-violet btn-small" type="button">Remember this</button>
-          <span id="remember-status" class="story-status">writes to the real demo Vault</span>
+          <button id="remember" class="btn btn-violet btn-small" type="button">Save memory</button>
+          <span id="remember-status" class="story-status">Stays in this demo session</span>
         </div>
-        <div class="capture-log" aria-label="Captured memories in this scope">
-          <div class="operation-head"><span class="operation-title">Captured in this scope</span><span id="capture-count" class="operation-time">0</span></div>
+        <div class="capture-log" aria-label="Saved memories in this session">
+          <div class="operation-head"><span class="operation-title">Saved in this session</span><span id="capture-count" class="operation-time">0</span></div>
           <div id="capture-list" class="capture-list" role="list" aria-live="polite"></div>
         </div>
       </section>
 
       <section class="panel" aria-labelledby="recall-title">
-        <div class="panel-kicker green">Session 2 · use it</div>
-        <h3 id="recall-title">Start with the right context.</h3>
-        <p class="panel-intro">Ask the question you would ask at the start of a later task. Vault retrieves relevant memory instead of making the workflow rediscover it.</p>
+        <div class="panel-kicker green">Step 2 · use it</div>
+        <h3 id="recall-title">Start with the right information.</h3>
+        <p class="panel-intro">Ask what you need to know for a later task. Vault finds the memories that fit instead of making you search for them again.</p>
         <label class="field-label" for="query">What are you about to do?</label>
         <input id="query" placeholder="What should I know before deploying the billing migration?">
         <div class="panel-actions">
-          <div class="mode-tabs" role="tablist" aria-label="Recall mode">
-            <button class="mode-tab" type="button" role="tab" data-mode="hybrid" aria-selected="true">hybrid</button>
-            <button class="mode-tab" type="button" role="tab" data-mode="dense" aria-selected="false">semantic</button>
-            <button class="mode-tab" type="button" role="tab" data-mode="fts5" aria-selected="false">keyword</button>
+          <div class="mode-tabs" role="tablist" aria-label="How to find a memory">
+            <button class="mode-tab" type="button" role="tab" data-mode="hybrid" aria-selected="true">best match</button>
+            <button class="mode-tab" type="button" role="tab" data-mode="dense" aria-selected="false">by meaning</button>
+            <button class="mode-tab" type="button" role="tab" data-mode="fts5" aria-selected="false">by keyword</button>
           </div>
-          <button id="recall" class="btn btn-primary btn-small" type="button">Recall with Vault</button>
+          <button id="recall" class="btn btn-primary btn-small" type="button">Find relevant memories</button>
         </div>
         <div class="operation">
-          <div class="operation-head"><span class="operation-title">Relevant memories</span><span id="recall-time" class="operation-time"></span></div>
-          <div id="recall-output" class="output empty" role="status" aria-live="polite">Run the demo to see the matching decision appear here.</div>
+          <div class="operation-head"><span class="operation-title">Memories that fit</span><span id="recall-time" class="operation-time"></span></div>
+          <div id="recall-output" class="output empty" role="status" aria-live="polite">Run the demo to see the right memory appear here.</div>
         </div>
         <div class="operation">
-          <div class="operation-head"><span class="operation-title">Prepared context</span><span id="context-time" class="operation-time"></span></div>
-          <div id="context-output" class="output empty" role="status" aria-live="polite">Run the demo to see the bounded context block an agent can read before reasoning.</div>
+          <div class="operation-head"><span class="operation-title">Ready-to-use summary</span><span id="context-time" class="operation-time"></span></div>
+          <div id="context-output" class="output empty" role="status" aria-live="polite">Run the demo to see a short summary you can use to start the task.</div>
           <div class="context-tools">
-            <span id="context-meta" class="context-meta">No context prepared yet.</span>
+            <span id="context-meta" class="context-meta">Nothing ready yet.</span>
             <span id="context-copy-status" class="context-copy-status" role="status" aria-live="polite"></span>
-            <button id="copy-context" class="btn btn-small" type="button" disabled>Copy context</button>
+            <button id="copy-context" class="btn btn-small" type="button" disabled>Copy summary</button>
           </div>
-          <div class="panel-actions"><button id="prepare" class="btn btn-small" type="button">Prepare context for this task</button></div>
+          <div class="panel-actions"><button id="prepare" class="btn btn-small" type="button">Prepare this summary</button></div>
         </div>
       </section>
     </div>
@@ -462,15 +462,15 @@ select { min-width: 0; max-width: 100%; }
     <section id="outcome-summary" class="outcome-summary" role="status" aria-live="polite" aria-labelledby="outcome-title" hidden>
       <div class="outcome-mark" aria-hidden="true">✓</div>
       <div>
-        <div class="outcome-kicker">Observed product change</div>
-        <h3 id="outcome-title">Vault changed the starting point.</h3>
-        <p id="outcome-detail">The fresh task began empty; the later task now has only the relevant, bounded context.</p>
+        <div class="outcome-kicker">What changed</div>
+        <h3 id="outcome-title">The next task gets a head start.</h3>
+        <p id="outcome-detail">Before, this task had nothing saved. Now it starts with only the memories that fit the question.</p>
         <div class="outcome-path" aria-label="Observed demo result">
-          <span id="outcome-before">0 relevant</span>
+          <span id="outcome-before">0 found</span>
           <span class="outcome-arrow" aria-hidden="true">→</span>
-          <span id="outcome-captured">0 captured</span>
+          <span id="outcome-captured">0 saved</span>
           <span class="outcome-arrow" aria-hidden="true">→</span>
-          <span id="outcome-selected">0 selected</span>
+          <span id="outcome-selected">0 used</span>
           <span class="outcome-arrow" aria-hidden="true">→</span>
           <span id="outcome-context">0 chars ready</span>
         </div>
@@ -478,22 +478,22 @@ select { min-width: 0; max-width: 100%; }
     </section>
 
     <div class="value-strip" aria-label="Demo activity">
-      <div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">memories captured this run</div></div>
-      <div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">relevant memories returned</div></div>
-      <div class="value-cell"><div id="stat-context" class="value-number">0</div><div class="value-label">context blocks prepared this run</div></div>
-      <div class="value-cell"><div id="stat-followed" class="value-number">0</div><div class="value-label">useful feedback this run</div></div>
+      <div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">memories saved</div></div>
+      <div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">memories found</div></div>
+      <div class="value-cell"><div id="stat-context" class="value-number">0</div><div class="value-label">summaries prepared</div></div>
+      <div class="value-cell"><div id="stat-followed" class="value-number">0</div><div class="value-label">times marked useful</div></div>
     </div>
 
     <div class="compare">
       <article class="compare-card">
         <h3>Without durable memory</h3>
-        <p>Every new session pays the rediscovery cost.</p>
-        <ul><li>re-read old threads and documents</li><li>ask the same “why?” again</li><li>risk acting on a stale or forgotten convention</li></ul>
+        <p>Every new task starts from scratch.</p>
+        <ul><li>re-read old threads and documents</li><li>ask the same “why?” again</li><li>risk missing a team rule or decision</li></ul>
       </article>
       <article class="compare-card good">
         <h3>With Vault</h3>
         <p>The next task starts with the relevant past.</p>
-        <ul><li>retrieve the decision when it matters</li><li>prepare a bounded, inspectable context block</li><li>mark guidance useful or followed</li></ul>
+        <ul><li>find the decision when it matters</li><li>prepare a short, inspectable summary</li><li>mark the guidance useful</li></ul>
       </article>
     </div>
   </section>
@@ -501,60 +501,60 @@ select { min-width: 0; max-width: 100%; }
   <section class="proof shell">
     <div class="proof-grid">
       <div class="proof-copy">
-        <div class="eyebrow">Value without invented numbers</div>
-        <h2>Show how production value could be measured.</h2>
-        <p>This page proves the memory loop, not a customer savings number. It does not make an LLM call or pretend to know a dollar saving. Real deployments can measure that separately.</p>
-        <p class="disclaimer">Perseus can send provider-reported usage and the counterfactual prompt it replaced to Perseus Ledger / Plutus. Provider-billed events with a recorded baseline become re-computable savings; context-only reductions stay in a separate estimate arm with coverage and counting exactness shown.</p>
+        <div class="eyebrow">No made-up numbers</div>
+        <h2>How teams can measure the value.</h2>
+        <p>This page demonstrates the memory loop—not a promise about customer savings. It does not call an AI model or pretend to know what a dollar is worth. A real deployment can measure that separately.</p>
+        <p class="disclaimer">In a real deployment, Perseus Ledger can record what a provider charged and the prompt Vault replaced. That makes the comparison reproducible. Smaller context without a bill is reported separately as an estimate, with the coverage and counting method shown.</p>
       </div>
-      <div class="receipt" aria-label="Illustrative value receipt">
+      <div class="receipt" aria-label="Example value report">
         <div class="receipt-head">
           <div>
-            <div class="receipt-kicker">Illustrative value receipt</div>
-            <div class="receipt-title">Not populated by this browser demo</div>
+            <div class="receipt-kicker">Example from a real deployment</div>
+            <div class="receipt-title">Not generated by this demo</div>
           </div>
-          <span class="receipt-status illustrative">REAL DEPLOYMENT ONLY</span>
+          <span class="receipt-status illustrative">ONLY IN A REAL DEPLOYMENT</span>
         </div>
         <div class="receipt-rows" role="list">
-          <div class="receipt-row" role="listitem"><span>provider usage</span><strong>recorded</strong></div>
-          <div class="receipt-row" role="listitem"><span>counterfactual input tokens</span><strong>attached to event</strong></div>
+          <div class="receipt-row" role="listitem"><span>what the provider charged</span><strong>recorded</strong></div>
+          <div class="receipt-row" role="listitem"><span>prompt that would have been sent</span><strong>saved with the record</strong></div>
           <div class="receipt-row" role="listitem"><span>actual cost</span><strong>priced from usage</strong></div>
           <div class="receipt-row" role="listitem"><span>baseline cost</span><strong>priced from baseline</strong></div>
-          <div class="receipt-row" role="listitem"><span>saving calculation</span><strong>baseline − actual</strong></div>
-          <div class="receipt-row" role="listitem"><span>coverage / estimate status</span><strong>shown, never hidden</strong></div>
-          <div class="receipt-row" role="listitem"><span>chain integrity</span><strong>independently checked</strong></div>
+          <div class="receipt-row" role="listitem"><span>savings</span><strong>baseline − actual</strong></div>
+          <div class="receipt-row" role="listitem"><span>coverage and estimate status</span><strong>shown, never hidden</strong></div>
+          <div class="receipt-row" role="listitem"><span>record integrity</span><strong>independently checked</strong></div>
         </div>
-        <p class="receipt-links">See the <a href="https://github.com/Perseus-Computing-LLC/perseus/blob/main/WIRING.md#9-savings-wire--metering-spend-and-provable-savings-into-plutus">savings wire ↗</a> and <a href="https://github.com/Perseus-Computing-LLC/ledger">Ledger source ↗</a>.</p>
+        <p class="receipt-links">Read <a href="https://github.com/Perseus-Computing-LLC/perseus/blob/main/WIRING.md">how savings are measured ↗</a> or <a href="https://github.com/Perseus-Computing-LLC/ledger">the Ledger source ↗</a>.</p>
       </div>
     </div>
     <div class="support">
-      <p><strong>Did Vault save you a rediscovery loop?</strong><br><span style="color:var(--muted)">The software is free and open source. Support is optional, never required for access.</span></p>
+      <p><strong>Was this useful?</strong><br><span style="color:var(--muted)">The software is free and open source. Support is optional, never required for access.</span></p>
       <div class="support-actions">
         <a href="https://github.com/sponsors/tcconnally">Support the work ↗</a>
         <iframe class="sponsor-button" src="https://github.com/sponsors/tcconnally/button" title="Sponsor tcconnally" height="32" width="114"></iframe>
       </div>
     </div>
-    <div class="provenance" aria-label="Live runtime provenance">
+    <div class="provenance" aria-label="About this demo">
       <div class="provenance-head">
-        <span class="provenance-label">Live runtime provenance</span>
-        <span id="provenance-status" class="provenance-status">checking self-hosted runtime…</span>
+        <span class="provenance-label">About this demo</span>
+        <span id="provenance-status" class="provenance-status">live · private demo</span>
       </div>
       <div class="provenance-grid">
-        <div class="provenance-item"><span>runtime</span><strong id="provenance-runtime">self-hosted Greg container</strong></div>
-        <div class="provenance-item"><span>Vault</span><strong id="provenance-vault">real binary</strong></div>
-        <div class="provenance-item"><span>source branch</span><strong id="provenance-source">GitHub main</strong></div>
-        <div class="provenance-item"><span>Ledger evidence</span><strong id="provenance-ledger">optional</strong></div>
+        <div class="provenance-item"><span>where it runs</span><strong id="provenance-runtime">Hosted demo</strong></div>
+        <div class="provenance-item"><span>what powers it</span><strong id="provenance-vault">Real Vault engine</strong></div>
+        <div class="provenance-item"><span>your data</span><strong id="provenance-source">Private to this browser</strong></div>
+        <div class="provenance-item"><span>extra proof</span><strong id="provenance-ledger">Optional</strong></div>
       </div>
       <div class="provenance-actions">
-        <button id="inspect-evidence" type="button">Inspect Ledger evidence</button>
-        <a href="https://github.com/Perseus-Computing-LLC/perseus-vault-demo">Inspect deployed source ↗</a>
+        <button id="inspect-evidence" type="button">Check supporting evidence</button>
+        <a href="https://github.com/Perseus-Computing-LLC/perseus-vault-demo">View source on GitHub ↗</a>
       </div>
-      <p class="provenance-note">The demo runs the real Vault binary in an isolated browser-scoped workspace. Inspect the source or deploy Vault locally to use your own data.</p>
+      <p class="provenance-note">You are using the real Vault engine in a private demo session. Nothing here touches production data, and the demo does not call an AI model.</p>
       <div id="evidence-output" class="evidence-output output" role="status" aria-live="polite"></div>
     </div>
     <details class="sponsor-card-wrap">
       <summary class="sponsor-card-summary">
         <span class="sponsor-card-label">Support the project on GitHub</span>
-        <span class="sponsor-card-action">Open embedded Sponsor card</span>
+        <span class="sponsor-card-action">See support options</span>
       </summary>
       <div class="sponsor-card-body">
         <iframe class="sponsor-card" src="https://github.com/sponsors/tcconnally/card" title="Sponsor tcconnally" height="225" width="600"></iframe>
@@ -565,7 +565,7 @@ select { min-width: 0; max-width: 100%; }
 </main>
 
 <footer class="footer shell">
-  <span>Perseus Computing · MIT · browser-scoped demo</span>
+  <span>Perseus Computing · MIT · private demo session</span>
   <span><a href="https://perseus.observer/vault/">Vault</a> · <a href="https://github.com/Perseus-Computing-LLC/perseus-vault">GitHub</a> · <a href="https://github.com/sponsors/tcconnally">Support</a></span>
 </footer>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -679,24 +679,34 @@ select { min-width: 0; max-width: 100%; }
 
   function resetPhases() {
     activePhase = "";
-    setPhase("before", "ready", "0 relevant memories · fresh scope");
-    setPhase("teach", "ready", "0 captured in this scope");
-    setPhase("after", "ready", "Waiting for a task question");
-    setPhase("use", "ready", "Waiting for a context block");
+    setPhase("before", "ready", "Nothing saved yet");
+    setPhase("teach", "ready", "0 saved in this session");
+    setPhase("after", "ready", "Ask what you are about to do");
+    setPhase("use", "ready", "Your short summary will appear here");
   }
 
   function resetOutcome() {
     const outcome = $("outcome-summary");
     if (!outcome) return;
     outcome.hidden = true;
-    $("outcome-before").textContent = "0 relevant";
-    $("outcome-captured").textContent = "0 captured";
-    $("outcome-selected").textContent = "0 selected";
+    $("outcome-before").textContent = "0 found";
+    $("outcome-captured").textContent = "0 saved";
+    $("outcome-selected").textContent = "0 used";
     $("outcome-context").textContent = "0 chars ready";
   }
 
   function memoryIdentity(item) {
     return String((item && (item.key || item.id || item.entity_id)) || itemText(item));
+  }
+
+  function categoryLabel(category) {
+    return ({
+      decision: "Decision",
+      convention: "Team rule",
+      lesson: "Lesson",
+      preference: "Preference",
+      fact: "Fact"
+    })[category] || "Memory";
   }
 
   function renderCaptures() {
@@ -711,7 +721,7 @@ select { min-width: 0; max-width: 100%; }
       top.className = "capture-item-top";
       const kind = document.createElement("span");
       kind.className = "capture-item-kind";
-      kind.textContent = memory.category;
+      kind.textContent = categoryLabel(memory.category);
       const key = document.createElement("span");
       key.className = "capture-item-key";
       key.textContent = memory.key;
@@ -739,18 +749,18 @@ select { min-width: 0; max-width: 100%; }
     saveStats();
     renderCaptures();
     if (storyRunning) {
-      setPhase("teach", "active", `${capturedMemories.length} of ${storyTargetCount} decisions captured`);
+      setPhase("teach", "active", `${capturedMemories.length} of ${storyTargetCount} decisions saved`);
     } else {
-      setPhase("teach", "complete", `${capturedMemories.length} captured in this scope`);
+      setPhase("teach", "complete", `${capturedMemories.length} saved in this session`);
     }
   }
 
   function renderOutcome(capturedCount, selectedCount) {
     const outcome = $("outcome-summary");
     if (!outcome) return;
-    $("outcome-detail").textContent = `The fresh task began with 0 relevant memories. Vault captured ${capturedCount} decisions, selected ${selectedCount} for this task, and prepared a ${lastContextText.length.toLocaleString()}-character bounded context block.`;
-    $("outcome-captured").textContent = `${capturedCount} captured`;
-    $("outcome-selected").textContent = `${selectedCount} selected`;
+    $("outcome-detail").textContent = `Before, this task had nothing saved. Vault saved ${capturedCount} decisions, used ${selectedCount} that fit the question, and prepared a short ${lastContextText.length.toLocaleString()}-character summary.`;
+    $("outcome-captured").textContent = `${capturedCount} saved`;
+    $("outcome-selected").textContent = `${selectedCount} used`;
     $("outcome-context").textContent = `${lastContextText.length.toLocaleString()} chars ready`;
     outcome.hidden = false;
   }
@@ -767,14 +777,14 @@ select { min-width: 0; max-width: 100%; }
     resetPhases();
     resetOutcome();
     renderCaptures();
-    setOutput("recall-output", "Run the demo to see the matching decision appear here.", true);
-    setOutput("context-output", "Run the demo to see the bounded context block an agent can read before reasoning.", true);
+    setOutput("recall-output", "Run the demo to see the right memory appear here.", true);
+    setOutput("context-output", "Run the demo to see a short summary you can use to start the task.", true);
     $("recall-time").textContent = "";
     $("context-time").textContent = "";
-    $("context-meta").textContent = "No context prepared yet.";
+    $("context-meta").textContent = "Nothing ready yet.";
     $("context-copy-status").textContent = "";
     $("copy-context").disabled = true;
-    setStatus("remember-status", "writes to the real demo Vault");
+    setStatus("remember-status", "Stays in this demo session");
   }
 
   function setOutput(id, content, empty, success = false) {
@@ -814,9 +824,9 @@ select { min-width: 0; max-width: 100%; }
     summary.className = "selection-summary";
     const selected = document.createElement("strong");
     if (capturedMemories.length) {
-      selected.textContent = `Vault selected ${items.length} of ${capturedMemories.length} captured memories for this task.`;
+      selected.textContent = `Vault found ${items.length} of ${capturedMemories.length} saved memories that fit this task.`;
     } else {
-      selected.textContent = `Vault returned ${items.length} relevant memories for this task.`;
+      selected.textContent = `Vault found ${items.length} memories that fit this task.`;
     }
     summary.appendChild(selected);
     const selectedKeys = new Set(items.map(memoryIdentity));
@@ -824,7 +834,7 @@ select { min-width: 0; max-width: 100%; }
     if (omitted.length) {
       const omittedText = document.createElement("p");
       omittedText.className = "selection-omitted";
-      omittedText.textContent = `Left out for this task: ${omitted.map((memory) => memory.key).join(", ")}. Captured context stays out when it is not selected for the question.`;
+      omittedText.textContent = `Not used for this task: ${omitted.map((memory) => memory.key).join(", ")}. Saved information stays out when it does not fit the question.`;
       summary.appendChild(omittedText);
     }
     wrapper.appendChild(summary);
@@ -836,10 +846,10 @@ select { min-width: 0; max-width: 100%; }
       top.className = "hit-top";
       const kind = document.createElement("span");
       kind.className = "hit-kind";
-      kind.textContent = item.category || item.type || "memory";
+      kind.textContent = categoryLabel(item.category || item.type);
       const meta = document.createElement("span");
       meta.className = "hit-meta";
-      const confidence = item.confidence == null ? "" : ` · ${Math.round(Number(item.confidence) * 100)}% confidence`;
+      const confidence = item.confidence == null ? "" : ` · ${Math.round(Number(item.confidence) * 100)}% match`;
       meta.textContent = `${item.key || "unlabeled"}${confidence}`;
       top.append(kind, meta);
       const text = document.createElement("div");
@@ -853,7 +863,7 @@ select { min-width: 0; max-width: 100%; }
       use.addEventListener("click", () => markFollowed(item, use));
       const signal = document.createElement("span");
       signal.className = "confidence";
-      signal.textContent = item.verified ? "verified" : "retrieved from your session";
+      signal.textContent = item.verified ? "verified" : "from this demo session";
       actions.append(use, signal);
       row.append(top, text, actions);
       fragment.appendChild(row);
@@ -870,7 +880,7 @@ select { min-width: 0; max-width: 100%; }
       stats.followed += 1;
       saveStats();
       button.textContent = "Useful ✓";
-      toast("Feedback recorded — useful memories can resist decay.");
+      toast("Thanks — feedback recorded.");
     } catch (error) {
       button.disabled = false;
       toast(error.message, true);
@@ -879,7 +889,7 @@ select { min-width: 0; max-width: 100%; }
 
   async function remember(text, key, category, silent) {
     const button = $("remember");
-    if (!silent) { button.disabled = true; button.textContent = "Remembering…"; }
+    if (!silent) { button.disabled = true; button.textContent = "Saving…"; }
     const textValue = (text || $("memory-text").value).trim();
     const keyValue = (key || $("memory-key").value).trim();
     const categoryValue = category || $("memory-category").value;
@@ -892,16 +902,16 @@ select { min-width: 0; max-width: 100%; }
       });
       recordCaptured(textValue, result.key || keyValue, categoryValue);
       if (!silent) {
-        setStatus("remember-status", `stored · ${result.latency_ms}ms`);
+        setStatus("remember-status", "saved to this demo session");
         $("memory-text").value = "";
-        toast("Memory stored in the browser-scoped Vault.");
+        toast("Memory saved to this private demo session.");
       }
       return result;
     } catch (error) {
       if (!silent) { setStatus("remember-status", error.message, true); toast(error.message, true); }
       if (silent) throw error;
     } finally {
-      if (!silent) { button.disabled = false; button.textContent = "Remember this"; }
+      if (!silent) { button.disabled = false; button.textContent = "Save memory"; }
     }
   }
 
@@ -914,25 +924,26 @@ select { min-width: 0; max-width: 100%; }
       return [];
     }
     const button = $("recall");
-    button.disabled = true; button.textContent = "Recalling…";
-    setOutput("recall-output", "Searching the real Vault…", false);
+    button.disabled = true; button.textContent = "Finding…";
+    setOutput("recall-output", "Looking through your saved memories…", false);
     try {
       const result = await post("/api/recall", { query, mode });
       const items = itemsFrom(result);
       lastHits = items;
       stats.hits = items.length;
       saveStats();
-      $("recall-time").textContent = `${result.latency_ms}ms · ${mode}`;
+      const modeLabel = mode === "dense" ? "by meaning" : mode === "fts5" ? "by keyword" : "best match";
+      $("recall-time").textContent = modeLabel;
       if (!items.length) {
-        setOutput("recall-output", "No relevant project context in this scope. Teach Vault a decision above, then ask this task again.", true);
-        if (!storyRunning) setPhase("after", "complete", "0 relevant memories returned");
+        setOutput("recall-output", "Nothing relevant yet. Save a decision above, then ask this question again.", true);
+        if (!storyRunning) setPhase("after", "complete", "0 matching memories found");
       } else renderHits(items);
       if (items.length && !storyRunning) {
         const selectedKeys = new Set(items.map(memoryIdentity));
         const omittedCount = capturedMemories.filter((memory) => !selectedKeys.has(memory.key)).length;
-        setPhase("after", "complete", `${items.length} selected · ${omittedCount} left out`);
+        setPhase("after", "complete", `${items.length} found · ${omittedCount} left out`);
       }
-      toast(items.length ? `${items.length} relevant memory${items.length === 1 ? "" : "ies"} surfaced.` : "No matches yet — try a broader question.", !items.length);
+      toast(items.length ? `${items.length} memor${items.length === 1 ? "y" : "ies"} found.` : "Nothing matches yet — try a broader question.", !items.length);
       return items;
     } catch (error) {
       setOutput("recall-output", error.message, true);
@@ -940,7 +951,7 @@ select { min-width: 0; max-width: 100%; }
       setPhase("after", "error", "Recall failed — no result to use");
       toast(error.message, true);
       return [];
-    } finally { button.disabled = false; button.textContent = "Recall with Vault"; }
+    } finally { button.disabled = false; button.textContent = "Find relevant memories"; }
   }
 
   async function prepareContext(propagate = false) {
@@ -953,34 +964,34 @@ select { min-width: 0; max-width: 100%; }
     }
     const button = $("prepare");
     button.disabled = true; button.textContent = "Preparing…";
-    setOutput("context-output", "Building a bounded context block…", false);
+    setOutput("context-output", "Preparing a short summary…", false);
     try {
       const result = await post("/api/context", { query });
       const data = result.data;
       const candidate = (data && (data.context_markdown || data.markdown || data.text || data.context)) || result.text || (data && JSON.stringify(data, null, 2)) || "No context was prepared.";
       const text = typeof candidate === "string" ? candidate : JSON.stringify(candidate) || "";
-      if (!text.trim() || text === "No context was prepared.") throw new Error("Vault returned no usable context for this task.");
-      if (text.length > 2400) throw new Error("The context exceeds the public 2,400-character bound.");
+      if (!text.trim() || text === "No context was prepared.") throw new Error("Vault returned no usable summary for this task.");
+      if (text.length > 2400) throw new Error("The summary is longer than the public 2,400-character limit.");
       lastContextText = text;
       stats.contexts += 1;
       saveStats();
-      $("context-time").textContent = `${result.latency_ms}ms · bounded + relevance-gated`;
+      $("context-time").textContent = "ready for this task";
       const pre = document.createElement("pre");
       pre.textContent = text;
       setOutput("context-output", pre, false, true);
-      $("context-meta").textContent = `${text.length.toLocaleString()} characters · bounded to 2,400 max`;
+      $("context-meta").textContent = `${text.length.toLocaleString()} characters · limit 2,400`;
       $("context-copy-status").textContent = "";
       $("copy-context").disabled = false;
-      if (!storyRunning) setPhase("use", "complete", `bounded block ready · ${lastHits.length} memories included`);
-      toast("Context prepared — this is the block an agent can read before reasoning.");
+      if (!storyRunning) setPhase("use", "complete", `summary ready · ${lastHits.length} memories included`);
+      toast("Summary ready — use it to start the task.");
       return result;
     } catch (error) {
       setOutput("context-output", error.message, true);
       if (propagate) throw error;
-      setPhase("use", "error", "Context preparation failed");
+      setPhase("use", "error", "Could not prepare a summary");
       toast(error.message, true);
       return null;
-    } finally { button.disabled = false; button.textContent = "Prepare context for this task"; }
+    } finally { button.disabled = false; button.textContent = "Prepare this summary"; }
   }
 
   async function copyContext() {
@@ -1005,8 +1016,8 @@ select { min-width: 0; max-width: 100%; }
       }
       $("context-copy-status").textContent = `copied ${lastContextText.length.toLocaleString()} characters`;
       copyButton.textContent = "Copied ✓";
-      toast("Bounded context copied to the clipboard.");
-      window.setTimeout(() => { copyButton.textContent = "Copy context"; }, 1800);
+      toast("Summary copied to the clipboard.");
+      window.setTimeout(() => { copyButton.textContent = "Copy summary"; }, 1800);
     } catch (_) {
       $("context-copy-status").textContent = "Copy unavailable — select the context block manually.";
       toast("Copy was unavailable; the context remains selectable below.", true);
@@ -1027,48 +1038,48 @@ select { min-width: 0; max-width: 100%; }
       $("query").value = story.query;
 
       // BEFORE: prove that this fresh scope starts empty.
-      setPhase("before", "active", "Checking the fresh scope…");
-      setStoryState("BEFORE: checking the fresh task…", "running");
+      setPhase("before", "active", "Starting with a blank task…");
+      setStoryState("Starting with a blank task…", "running");
       const beforeHits = await recall(true);
-      if (beforeHits.length) throw new Error("Sandbox isolation failure: session not empty.");
-      $("recall-time").textContent = "0 relevant memories · fresh browser scope";
-      setOutput("recall-output", "No relevant project context in this fresh task. The agent would have to rediscover these facts.", true);
-      setPhase("before", "complete", "0 relevant memories · empty by design");
-      toast("BEFORE complete: the fresh task has no relevant context.");
-      setStoryState("BEFORE complete: no context found in the fresh task.", "running");
+      if (beforeHits.length) throw new Error("The demo session was not isolated. Please try again.");
+      $("recall-time").textContent = "nothing found yet";
+      setOutput("recall-output", "This task starts with nothing saved. Without Vault, these facts would have to be found again.", true);
+      setPhase("before", "complete", "Nothing saved yet");
+      toast("Blank task checked — nothing relevant yet.");
+      setStoryState("Blank task checked — nothing relevant yet.", "running");
       await new Promise(r => setTimeout(r, 1500));
 
       // TEACH: every visible progress step follows a successful remember call.
-      setPhase("teach", "active", `0 of ${storyTargetCount} decisions captured`);
-      setStoryState("TEACH: capturing the team decisions…", "running");
+      setPhase("teach", "active", `0 of ${storyTargetCount} decisions saved`);
+      setStoryState("Saving the example decisions…", "running");
       for (const [category, key, text] of story.memories) {
-        setStoryState(`TEACH: capturing ${key}…`, "running");
+        setStoryState(`Saving ${key}…`, "running");
         await remember(text, key, category, true);
         await new Promise(r => setTimeout(r, 600));
       }
-      if (capturedMemories.length !== storyTargetCount) throw new Error("Capture completed without all expected memories.");
-      setPhase("teach", "complete", `${capturedMemories.length} decisions captured`);
+      if (capturedMemories.length !== storyTargetCount) throw new Error("Not all example memories were saved.");
+      setPhase("teach", "complete", `${capturedMemories.length} decisions saved`);
 
       // AFTER: retrieve only what matches the later task.
-      setPhase("after", "active", "Asking the later-task question…");
-      setStoryState("AFTER: asking the task again with Vault…", "running");
+      setPhase("after", "active", "Finding the same task context…");
+      setStoryState("Finding the same task context…", "running");
       const afterHits = await recall(true);
-      if (!afterHits.length) throw new Error("Vault recall failed to find the captured memories.");
+      if (!afterHits.length) throw new Error("Vault could not find the saved memories.");
       const selectedKeys = new Set(afterHits.map(memoryIdentity));
       const omittedCount = capturedMemories.filter((memory) => !selectedKeys.has(memory.key)).length;
-      setPhase("after", "complete", `${afterHits.length} selected · ${omittedCount} left out`);
-      setStoryState(`AFTER complete: ${afterHits.length} relevant memories selected.`, "running");
+      setPhase("after", "complete", `${afterHits.length} found · ${omittedCount} left out`);
+      setStoryState(`Found ${afterHits.length} memories that fit this task.`, "running");
 
       // USE: prepare the bounded artifact that a downstream workflow can read.
-      setPhase("use", "active", "Preparing the bounded context block…");
-      setStoryState("USE: preparing bounded context for the task…", "running");
+      setPhase("use", "active", "Preparing a short summary…");
+      setStoryState("Preparing a short summary…", "running");
       const contextResult = await prepareContext(true);
-      if (!contextResult || !lastContextText) throw new Error("Context preparation returned no usable artifact.");
-      setPhase("use", "complete", `bounded block ready · ${afterHits.length} memories included`);
+      if (!contextResult || !lastContextText) throw new Error("No usable summary was returned.");
+      setPhase("use", "complete", `summary ready · ${afterHits.length} memories included`);
       renderOutcome(capturedMemories.length, afterHits.length);
 
-      setStoryState("complete · before → teach → after → use", "success");
-      toast("Demo complete: the next task has a bounded, relevant context block.");
+      setStoryState("Complete · start → save → find → use", "success");
+      toast("Done — the next task has a short, focused summary.");
     } catch (error) {
       if (activePhase) setPhase(activePhase, "error", `Stopped: ${error.message}`);
       setStoryState(error.message, "error");
@@ -1098,9 +1109,9 @@ select { min-width: 0; max-width: 100%; }
     storyRunning = false;
     resetRunState();
     fillScenario();
-    setStatus("remember-status", "writes to the real demo Vault");
-    setStoryState("ready · fresh browser scope", "ready");
-    toast("Started a fresh isolated scope. Previous demo memories are not visible here.");
+    setStatus("remember-status", "Stays in this demo session");
+    setStoryState("Ready · private demo session", "ready");
+    toast("Started over with a private demo session.");
   });
   $("remember").addEventListener("click", () => { remember().catch(() => {}); });
   $("recall").addEventListener("click", () => { recall().catch(() => {}); });
@@ -1141,13 +1152,13 @@ select { min-width: 0; max-width: 100%; }
       const response = await fetch("/api/provenance", { cache: "no-store" });
       const data = await response.json();
       if (!response.ok || data.error) throw new Error(data.error || "runtime unavailable");
-      $("provenance-runtime").textContent = data.runtime || "self-hosted runtime";
-      $("provenance-vault").textContent = data.vault && data.vault.version ? `Vault ${data.vault.version}` : "real binary";
-      $("provenance-source").textContent = data.source && data.source.revision ? data.source.revision : "GitHub main";
-      $("provenance-ledger").textContent = data.ledger && data.ledger.available ? "configured" : "optional / not configured";
-      $("provenance-status").textContent = "live · boundary disclosed";
+      $("provenance-runtime").textContent = "Hosted demo";
+      $("provenance-vault").textContent = "Real Vault engine";
+      $("provenance-source").textContent = "Private to this browser";
+      $("provenance-ledger").textContent = "Optional";
+      $("provenance-status").textContent = "live · private demo";
     } catch (error) {
-      $("provenance-status").textContent = "runtime details unavailable";
+      $("provenance-status").textContent = "live demo details unavailable";
       $("provenance-status").style.color = "var(--red)";
     }
   }
@@ -1156,9 +1167,9 @@ select { min-width: 0; max-width: 100%; }
     const button = $("inspect-evidence");
     const output = $("evidence-output");
     button.disabled = true;
-    button.textContent = "Inspecting…";
+    button.textContent = "Checking…";
     output.className = "evidence-output output show";
-    output.textContent = "Checking whether this deployment has an optional Ledger evidence path…";
+    output.textContent = "Checking for supporting evidence…";
     let evidenceStatus = "";
     try {
       const response = await fetch("/api/evidence", { cache: "no-store" });
@@ -1174,32 +1185,31 @@ select { min-width: 0; max-width: 100%; }
       }
       output.replaceChildren();
       const lines = [
-        `Receipt: ${data.receipt_version || "Ledger evidence receipt"}`,
-        `Scope: ${data.scope_status === "scoped_receipt" ? "demo-scoped receipt" : "No demo-scoped Ledger events are available"}`,
-        `Organization chain: ${data.chain_status === "organization_chain_verified" ? "organization chain is verified" : "organization chain is not verified"}`,
-        `Events: ${data.event_count ?? 0}`,
-        `Verified events: ${data.verified_events ?? "not reported"}`,
-        `External reference: ${data.external_ref || "vault-demo"}`,
+        `Record: ${data.receipt_version || "Ledger evidence record"}`,
+        `Coverage: ${data.scope_status === "scoped_receipt" ? "this demo" : "No evidence from this demo is available"}`,
+        `Record check: ${data.chain_status === "organization_chain_verified" ? "passed" : "not verified"}`,
+        `Records: ${data.event_count ?? 0}`,
+        `Checked records: ${data.verified_events ?? "not reported"}`,
         data.scope_message || "",
-        "Raw event contents remain server-side; this panel shows only the sanitized receipt summary."
+        "Only a safe summary is shown here; raw event contents stay on the server."
       ];
       const pre = document.createElement("pre");
       pre.textContent = lines.join("\n");
       output.appendChild(pre);
-      toast(data.scope_status === "scoped_receipt" ? "Scoped Ledger evidence inspected." : "No demo-scoped Ledger events are available.", data.scope_status !== "scoped_receipt");
+      toast(data.scope_status === "scoped_receipt" ? "Supporting evidence checked." : "No supporting evidence from this demo is available.", data.scope_status !== "scoped_receipt");
     } catch (error) {
       const message = error.status === "upstream_unavailable" || evidenceStatus === "upstream_unavailable"
-        ? "Ledger evidence is temporarily unavailable from this deployment. The memory loop remains fully usable; retry later."
+        ? "Supporting evidence is temporarily unavailable. The memory demo is still fully usable; try again later."
         : error.status === "scope_unverified" || evidenceStatus === "scope_unverified"
-          ? "Ledger evidence scope could not be verified, so no receipt is shown."
+          ? "The supporting evidence could not be verified, so no record is shown."
           : evidenceStatus === "not_configured"
-            ? "Ledger evidence is not configured for this deployment. The memory loop remains fully usable; no evidence claim is being invented."
-            : "Ledger evidence is temporarily unavailable from this deployment. The memory loop remains fully usable; retry later.";
+            ? "Supporting evidence is not enabled for this demo. The memory demo is still fully usable."
+            : "Supporting evidence is temporarily unavailable. The memory demo is still fully usable; try again later.";
       output.textContent = message;
       toast(message, true);
     } finally {
       button.disabled = false;
-      button.textContent = "Inspect Ledger evidence";
+      button.textContent = "Check supporting evidence";
     }
   }
   $("inspect-evidence").addEventListener("click", inspectEvidence);

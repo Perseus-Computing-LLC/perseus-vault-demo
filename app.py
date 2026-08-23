@@ -24,9 +24,9 @@ from urllib.request import Request, urlopen
 PERSEUS_VAULT = os.environ.get("PERSEUS_VAULT_BIN", "/usr/local/bin/perseus-vault")
 VAULT_IMAGE = os.environ.get("VAULT_IMAGE", "local/perseus-vault-demo:aesthetic-collapsible")
 VAULT_VERSION = os.environ.get("VAULT_VERSION", "2.22.0")
-SOURCE_REPOSITORY = os.environ.get(
-    "SOURCE_REPOSITORY", "https://github.com/Perseus-Computing-LLC/perseus-vault-demo"
-)
+# Keep the public provenance link on the canonical public repository even if a
+# deployment supplies other internal build metadata in its environment.
+SOURCE_REPOSITORY = "https://github.com/Perseus-Computing-LLC/perseus-vault-demo"
 SOURCE_REVISION = os.environ.get("SOURCE_REVISION", "main")
 LEDGER_URL = os.environ.get("LEDGER_URL", "https://ledger.perseus.observer")
 LEDGER_ORG = os.environ.get("LEDGER_ORG", "")
@@ -75,14 +75,17 @@ def workspace_for(session: Any) -> str:
 
 def vault_call(tool: str, args: dict[str, Any], timeout: float = 25) -> dict[str, Any]:
     """Spawn the real Vault binary, perform one MCP call, and parse its result."""
-    proc = subprocess.Popen(
-        [PERSEUS_VAULT, "serve", "--db", DB],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        text=True,
-        bufsize=1,
-    )
+    try:
+        proc = subprocess.Popen(
+            [PERSEUS_VAULT, "serve", "--db", DB],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            bufsize=1,
+        )
+    except OSError:
+        return {"error": "Perseus Vault is unavailable"}
     deadline = time.time() + timeout
 
     def send(payload: dict[str, Any]) -> None:
@@ -171,7 +174,21 @@ def clean_type(value: Any) -> str:
 
 
 def result_payload(out: dict[str, Any], started: float, **meta: Any) -> tuple[int, dict[str, Any]]:
-    body = dict(out)
+    operation = str(meta.get("operation") or "")
+    body: dict[str, Any]
+    if out.get("error"):
+        public_errors = {
+            "remember": "That memory could not be saved. Please try again.",
+            "recall": "Your memories could not be searched. Please try again.",
+            "context": "A summary could not be prepared. Please try again.",
+            "follow": "Your feedback could not be saved. Please try again.",
+        }
+        body = {
+            "error": public_errors.get(operation, "The demo could not complete that request. Please try again."),
+            "status": "demo_unavailable",
+        }
+    else:
+        body = dict(out)
     # Vault may return internal retrieval diagnostics when a fresh demo scope
     # has no embedded memories. Keep those implementation details server-side;
     # the public product surface should explain the empty result in task terms.
@@ -200,9 +217,21 @@ def public_context_text(out: dict[str, Any]) -> str:
     text = candidate if isinstance(candidate, str) else json.dumps(candidate, sort_keys=True)
     if len(text) > MAX_CONTEXT_CHARS:
         raise ValueError(
-            f"context exceeds the public {MAX_CONTEXT_CHARS:,}-character bound"
+            f"summary is longer than the public {MAX_CONTEXT_CHARS:,}-character limit"
         )
     return text
+
+
+def write_is_not_serveable(out: dict[str, Any]) -> bool:
+    """Detect a successful-looking write that Vault keeps out of recall."""
+    data = out.get("data") if isinstance(out, dict) else None
+    if not isinstance(data, dict):
+        return False
+    return (
+        data.get("serveable") is False
+        or data.get("pending_approval") is True
+        or data.get("proposed") is True
+    )
 
 
 def ledger_evidence() -> tuple[int, dict[str, Any]]:
@@ -261,21 +290,39 @@ def ledger_evidence() -> tuple[int, dict[str, Any]]:
         "available": True,
         "status": "available",
         "receipt_version": receipt.get("receipt_version"),
-        "organization_id": receipt_org,
-        "external_ref": receipt_external_ref,
         "event_count": len(events),
         "scope_status": scope_status,
         "chain_status": chain_status,
         "scope_message": (
-            "A demo-scoped Ledger receipt is available."
+            "Supporting evidence from this demo is available."
             if events
-            else "No demo-scoped Ledger events are available; the organization chain may still be verified."
+            else "No supporting evidence from this demo is available; the record chain may still be verified."
         ),
         "chain_ok": chain_ok,
         "verified_events": verified_events,
         "verification_method": verification.get("method"),
-        "ledger_url": LEDGER_URL,
         "events_included": False,
+    }
+
+
+def public_provenance() -> dict[str, Any]:
+    """Return only visitor-safe information about the hosted demo."""
+    return {
+        "service": "perseus-vault-demo",
+        "runtime": "hosted demo environment",
+        "sandbox": "private browser session; never production data",
+        "vault": {
+            "version": VAULT_VERSION,
+            "implementation": "real Vault engine",
+        },
+        "source": {
+            "repository": SOURCE_REPOSITORY,
+            "label": "open source",
+        },
+        "ledger": {
+            "available": bool(LEDGER_URL and LEDGER_ORG and LEDGER_API_KEY),
+            "mode": "optional supporting evidence; no demo claim is fabricated",
+        },
     }
 
 
@@ -304,30 +351,12 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, {
                 "ok": True,
                 "service": "perseus-vault-demo",
-                "runtime": "greg",
+                "runtime": "hosted demo",
                 "vault_version": VAULT_VERSION,
                 "source_revision": SOURCE_REVISION,
             })
         if path == "/api/provenance":
-            return self._send(200, {
-                "service": "perseus-vault-demo",
-                "runtime": "self-hosted Greg container",
-                "sandbox": "browser-scoped workspace; never production data",
-                "vault": {
-                    "binary": PERSEUS_VAULT,
-                    "version": VAULT_VERSION,
-                },
-                "source": {
-                    "repository": SOURCE_REPOSITORY,
-                    "revision": SOURCE_REVISION,
-                },
-                "ledger": {
-                    "available": bool(LEDGER_URL and LEDGER_ORG and LEDGER_API_KEY),
-                    "url": LEDGER_URL,
-                    "external_ref": LEDGER_EXTERNAL_REF,
-                    "mode": "optional evidence inspection; no demo claim is fabricated",
-                },
-            })
+            return self._send(200, public_provenance())
         if path == "/api/evidence":
             code, payload = ledger_evidence()
             return self._send(code, payload)
@@ -382,6 +411,11 @@ class Handler(BaseHTTPRequestHandler):
                         "tags": ["public-demo"],
                     },
                 )
+                if write_is_not_serveable(out):
+                    return self._send(503, {
+                        "error": "This demo could not make that memory available yet. Please try again.",
+                        "status": "write_not_serveable",
+                    })
                 code, payload = result_payload(
                     out, started, operation="remember", category=category, key=key
                 )
