@@ -5,6 +5,7 @@ import json
 import time
 import unittest
 from pathlib import Path
+from urllib.error import URLError
 from unittest.mock import patch
 
 import app
@@ -127,6 +128,64 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn("not a customer savings number", self.html)
         self.assertIn("Not populated by this browser demo", self.html)
 
+    def test_success_state_explains_the_observed_product_change(self) -> None:
+        self.assertIn('id="outcome-summary"', self.html)
+        self.assertIn("Vault changed the starting point", self.html)
+        self.assertIn("function renderOutcome", self.html)
+        self.assertIn("outcome.hidden = false", self.html)
+        self.assertIn("0 relevant memories", self.html)
+
+    def test_context_public_projection_enforces_the_character_cap(self) -> None:
+        self.assertEqual(app.public_context_text({"data": {"context_markdown": "ok"}}), "ok")
+        with self.assertRaises(ValueError):
+            app.public_context_text({"data": {"context_markdown": "x" * 2_401}})
+
+    def test_context_browser_path_rejects_an_oversized_artifact(self) -> None:
+        self.assertIn("if (text.length > 2400)", self.html)
+        self.assertIn("context exceeds the public 2,400-character bound", self.html)
+
+    def test_ledger_evidence_classifies_configuration_and_upstream_failures(self) -> None:
+        with patch.object(app, "LEDGER_URL", ""):
+            with patch.object(app, "LEDGER_ORG", ""):
+                with patch.object(app, "LEDGER_API_KEY", ""):
+                    code, payload = app.ledger_evidence()
+        self.assertEqual(code, 503)
+        self.assertEqual(payload["status"], "not_configured")
+
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self, _limit):
+                raise URLError("ledger unavailable")
+
+        with patch.object(app, "LEDGER_URL", "https://ledger.example"):
+            with patch.object(app, "LEDGER_ORG", "demo-org"):
+                with patch.object(app, "LEDGER_API_KEY", "test-key"):
+                    with patch.object(app, "urlopen", side_effect=URLError("ledger unavailable")):
+                        code, payload = app.ledger_evidence()
+        self.assertEqual(code, 502)
+        self.assertEqual(payload["status"], "upstream_unavailable")
+
+    def test_ledger_ui_distinguishes_unavailable_from_not_configured(self) -> None:
+        self.assertIn("Ledger evidence is temporarily unavailable", self.html)
+        self.assertIn("Ledger evidence is not configured", self.html)
+        self.assertIn("data.status === \"upstream_unavailable\"", self.html)
+
+    def test_public_response_headers_have_a_narrow_security_policy(self) -> None:
+        self.assertEqual(app.SECURITY_HEADERS["X-Frame-Options"], "DENY")
+        self.assertIn("Content-Security-Policy", app.SECURITY_HEADERS)
+        self.assertIn("frame-src https://github.com", app.SECURITY_HEADERS["Content-Security-Policy"])
+        self.assertIn("object-src 'none'", app.SECURITY_HEADERS["Content-Security-Policy"])
+
+    def test_container_has_a_process_healthcheck(self) -> None:
+        dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+        self.assertIn("HEALTHCHECK", dockerfile)
+        self.assertIn("/healthz", dockerfile)
+
     def test_copy_does_not_claim_that_the_demo_executes_agent_actions(self) -> None:
         self.assertIn("Prepare usable context", self.html)
         self.assertNotIn("Act with the right context", self.html)
@@ -160,7 +219,10 @@ class DemoContractTests(unittest.TestCase):
              patch.object(app, "urlopen", return_value=Response()):
             code, payload = app.ledger_evidence()
         self.assertEqual(code, 502)
-        self.assertEqual(payload, {"error": "Ledger evidence scope could not be verified"})
+        self.assertEqual(payload, {
+            "error": "Ledger evidence scope could not be verified",
+            "status": "scope_unverified",
+        })
 
     def test_ledger_evidence_accepts_exact_empty_scope_without_truthiness(self) -> None:
         class Response:

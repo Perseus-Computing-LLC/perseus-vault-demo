@@ -54,6 +54,8 @@ button:disabled { cursor: wait; opacity: .58; }
 .nav-links { display: flex; align-items: center; gap: 24px; color: var(--muted); font-size: 14px; }
 .nav-links a { color: var(--muted); }
 .nav-links a:hover { color: var(--text); }
+.mobile-source { display: none; color: var(--muted); font: 12px var(--mono); }
+.mobile-source:hover { color: var(--text); }
 .hero { padding: 74px 0 42px; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr); gap: 64px; align-items: center; }
 .eyebrow { color: var(--amber); font: 600 11px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
@@ -117,6 +119,15 @@ input { width: 100%; }
 .proof-phase h3 { margin: 7px 0 3px; font-size: 14px; }
 .proof-phase-detail { min-height: 38px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
 .run-boundary { margin: 10px 2px 0; color: var(--quiet); font: 11px/1.5 var(--mono); }
+.outcome-summary { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; margin: 14px 0 0; padding: 16px 18px; border: 1px solid rgba(85, 217, 154, .38); border-radius: 12px; background: linear-gradient(105deg, rgba(24, 73, 55, .42), rgba(18, 24, 34, .78)); }
+.outcome-summary[hidden] { display: none; }
+.outcome-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: #07130e; background: var(--green); font-weight: 900; }
+.outcome-kicker { color: var(--green); font: 600 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
+.outcome-summary h3 { margin: 5px 0 3px; font-size: 18px; letter-spacing: -.02em; }
+.outcome-summary p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.outcome-path { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
+.outcome-path span { padding: 5px 8px; border: 1px solid rgba(85, 217, 154, .25); border-radius: 6px; color: var(--text); background: rgba(9, 13, 19, .48); font: 11px var(--mono); }
+.outcome-path .outcome-arrow { padding: 0; border: 0; color: var(--green); background: transparent; }
 .workspace { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 14px; padding: 14px; background: rgba(15, 19, 27, .72); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 14px 14px; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
 .panel-kicker { color: var(--violet); font: 600 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
@@ -243,6 +254,7 @@ select { min-width: 0; max-width: 100%; }
   .hero-grid, .proof-grid { grid-template-columns: 1fr; gap: 30px; }
   .hero { padding-top: 52px; }
   .nav-links { display: none; }
+  .mobile-source { display: inline-flex; align-items: center; min-height: 36px; }
 }
 @media (max-width: 720px) {
   .shell { width: min(100% - 28px, 1180px); }
@@ -263,6 +275,7 @@ select { min-width: 0; max-width: 100%; }
   .sponsor-card-wrap { padding: 12px; }
   .provenance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .proof-phase-detail { min-height: 0; }
+  .outcome-summary { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
 </style>
@@ -279,6 +292,7 @@ select { min-width: 0; max-width: 100%; }
       <a href="https://github.com/Perseus-Computing-LLC/perseus-vault">Source</a>
       <a href="https://github.com/Perseus-Computing-LLC/perseus-vault#55-mcp-tools">Capabilities</a>
     </nav>
+    <a class="mobile-source" href="https://github.com/Perseus-Computing-LLC/perseus-vault">Source ↗</a>
   </div>
 </header>
 
@@ -445,6 +459,24 @@ select { min-width: 0; max-width: 100%; }
       </section>
     </div>
 
+    <section id="outcome-summary" class="outcome-summary" role="status" aria-live="polite" aria-labelledby="outcome-title" hidden>
+      <div class="outcome-mark" aria-hidden="true">✓</div>
+      <div>
+        <div class="outcome-kicker">Observed product change</div>
+        <h3 id="outcome-title">Vault changed the starting point.</h3>
+        <p id="outcome-detail">The fresh task began empty; the later task now has only the relevant, bounded context.</p>
+        <div class="outcome-path" aria-label="Observed demo result">
+          <span id="outcome-before">0 relevant</span>
+          <span class="outcome-arrow" aria-hidden="true">→</span>
+          <span id="outcome-captured">0 captured</span>
+          <span class="outcome-arrow" aria-hidden="true">→</span>
+          <span id="outcome-selected">0 selected</span>
+          <span class="outcome-arrow" aria-hidden="true">→</span>
+          <span id="outcome-context">0 chars ready</span>
+        </div>
+      </div>
+    </section>
+
     <div class="value-strip" aria-label="Demo activity">
       <div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">memories captured this run</div></div>
       <div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">relevant memories returned</div></div>
@@ -509,7 +541,7 @@ select { min-width: 0; max-width: 100%; }
       <div class="provenance-grid">
         <div class="provenance-item"><span>runtime</span><strong id="provenance-runtime">self-hosted Greg container</strong></div>
         <div class="provenance-item"><span>Vault</span><strong id="provenance-vault">real binary</strong></div>
-        <div class="provenance-item"><span>source</span><strong id="provenance-source">GitHub main</strong></div>
+        <div class="provenance-item"><span>source branch</span><strong id="provenance-source">GitHub main</strong></div>
         <div class="provenance-item"><span>Ledger evidence</span><strong id="provenance-ledger">optional</strong></div>
       </div>
       <div class="provenance-actions">
@@ -517,7 +549,7 @@ select { min-width: 0; max-width: 100%; }
         <a href="https://github.com/Perseus-Computing-LLC/perseus-vault-demo">Inspect deployed source ↗</a>
       </div>
       <p class="provenance-note">The demo runs the real Vault binary in an isolated browser-scoped workspace. Inspect the source or deploy Vault locally to use your own data.</p>
-      <div id="evidence-output" class="evidence-output output" role="status"></div>
+      <div id="evidence-output" class="evidence-output output" role="status" aria-live="polite"></div>
     </div>
     <details class="sponsor-card-wrap">
       <summary class="sponsor-card-summary">
@@ -653,6 +685,16 @@ select { min-width: 0; max-width: 100%; }
     setPhase("use", "ready", "Waiting for a context block");
   }
 
+  function resetOutcome() {
+    const outcome = $("outcome-summary");
+    if (!outcome) return;
+    outcome.hidden = true;
+    $("outcome-before").textContent = "0 relevant";
+    $("outcome-captured").textContent = "0 captured";
+    $("outcome-selected").textContent = "0 selected";
+    $("outcome-context").textContent = "0 chars ready";
+  }
+
   function memoryIdentity(item) {
     return String((item && (item.key || item.id || item.entity_id)) || itemText(item));
   }
@@ -703,6 +745,16 @@ select { min-width: 0; max-width: 100%; }
     }
   }
 
+  function renderOutcome(capturedCount, selectedCount) {
+    const outcome = $("outcome-summary");
+    if (!outcome) return;
+    $("outcome-detail").textContent = `The fresh task began with 0 relevant memories. Vault captured ${capturedCount} decisions, selected ${selectedCount} for this task, and prepared a ${lastContextText.length.toLocaleString()}-character bounded context block.`;
+    $("outcome-captured").textContent = `${capturedCount} captured`;
+    $("outcome-selected").textContent = `${selectedCount} selected`;
+    $("outcome-context").textContent = `${lastContextText.length.toLocaleString()} chars ready`;
+    outcome.hidden = false;
+  }
+
   function resetRunState() {
     session = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
     localStorage.setItem(sessionKey, session);
@@ -713,6 +765,7 @@ select { min-width: 0; max-width: 100%; }
     stats = { stored: 0, hits: 0, contexts: 0, followed: 0 };
     saveStats();
     resetPhases();
+    resetOutcome();
     renderCaptures();
     setOutput("recall-output", "Run the demo to see the matching decision appear here.", true);
     setOutput("context-output", "Run the demo to see the bounded context block an agent can read before reasoning.", true);
@@ -907,6 +960,7 @@ select { min-width: 0; max-width: 100%; }
       const candidate = (data && (data.context_markdown || data.markdown || data.text || data.context)) || result.text || (data && JSON.stringify(data, null, 2)) || "No context was prepared.";
       const text = typeof candidate === "string" ? candidate : JSON.stringify(candidate) || "";
       if (!text.trim() || text === "No context was prepared.") throw new Error("Vault returned no usable context for this task.");
+      if (text.length > 2400) throw new Error("The context exceeds the public 2,400-character bound.");
       lastContextText = text;
       stats.contexts += 1;
       saveStats();
@@ -1011,6 +1065,7 @@ select { min-width: 0; max-width: 100%; }
       const contextResult = await prepareContext(true);
       if (!contextResult || !lastContextText) throw new Error("Context preparation returned no usable artifact.");
       setPhase("use", "complete", `bounded block ready · ${afterHits.length} memories included`);
+      renderOutcome(capturedMemories.length, afterHits.length);
 
       setStoryState("complete · before → teach → after → use", "success");
       toast("Demo complete: the next task has a bounded, relevant context block.");
@@ -1104,10 +1159,19 @@ select { min-width: 0; max-width: 100%; }
     button.textContent = "Inspecting…";
     output.className = "evidence-output output show";
     output.textContent = "Checking whether this deployment has an optional Ledger evidence path…";
+    let evidenceStatus = "";
     try {
       const response = await fetch("/api/evidence", { cache: "no-store" });
+      evidenceStatus = response.status === 503 ? "not_configured" : (!response.ok ? "upstream_unavailable" : "");
       const data = await response.json();
-      if (!response.ok || data.error) throw new Error(data.error || "evidence path unavailable");
+      if (data.status === "upstream_unavailable") evidenceStatus = data.status;
+      if (data.status === "scope_unverified") evidenceStatus = data.status;
+      if (data.status === "not_configured") evidenceStatus = data.status;
+      if (!response.ok || data.error) {
+        const error = new Error(data.error || "evidence path unavailable");
+        error.status = evidenceStatus;
+        throw error;
+      }
       output.replaceChildren();
       const lines = [
         `Receipt: ${data.receipt_version || "Ledger evidence receipt"}`,
@@ -1124,8 +1188,15 @@ select { min-width: 0; max-width: 100%; }
       output.appendChild(pre);
       toast(data.scope_status === "scoped_receipt" ? "Scoped Ledger evidence inspected." : "No demo-scoped Ledger events are available.", data.scope_status !== "scoped_receipt");
     } catch (error) {
-      output.textContent = "No public Ledger receipt is configured for this demo yet. The memory loop remains fully usable; no evidence claim is being invented.";
-      toast("Optional Ledger evidence is not configured.", true);
+      const message = error.status === "upstream_unavailable" || evidenceStatus === "upstream_unavailable"
+        ? "Ledger evidence is temporarily unavailable from this deployment. The memory loop remains fully usable; retry later."
+        : error.status === "scope_unverified" || evidenceStatus === "scope_unverified"
+          ? "Ledger evidence scope could not be verified, so no receipt is shown."
+          : evidenceStatus === "not_configured"
+            ? "Ledger evidence is not configured for this deployment. The memory loop remains fully usable; no evidence claim is being invented."
+            : "Ledger evidence is temporarily unavailable from this deployment. The memory loop remains fully usable; retry later.";
+      output.textContent = message;
+      toast(message, true);
     } finally {
       button.disabled = false;
       button.textContent = "Inspect Ledger evidence";
