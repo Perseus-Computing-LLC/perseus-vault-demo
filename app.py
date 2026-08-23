@@ -36,6 +36,24 @@ DB = os.environ.get("DEMO_DB", "/data/demo.db")
 PORT = int(os.environ.get("PORT", "8092"))
 HERE = os.path.dirname(os.path.abspath(__file__))
 MAX_BODY = 16_384
+MAX_CONTEXT_CHARS = 2_400
+
+# Keep the public wrapper's response surface deliberately narrow. The inline
+# demo needs its own script/style rules and the GitHub Sponsor iframe, but no
+# other origins or browser capabilities should be enabled.
+SECURITY_HEADERS = {
+    "Cache-Control": "no-store",
+    "Content-Security-Policy": (
+        "default-src 'self'; base-uri 'self'; object-src 'none'; "
+        "frame-ancestors 'none'; form-action 'self'; "
+        "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
+        "connect-src 'self'; frame-src https://github.com; img-src 'self' data:;"
+    ),
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+}
 
 _lock = threading.Lock()
 _hits: dict[str, list[float]] = {}
@@ -166,10 +184,34 @@ def result_payload(out: dict[str, Any], started: float, **meta: Any) -> tuple[in
     return (502 if out.get("error") else 200), body
 
 
+def public_context_text(out: dict[str, Any]) -> str:
+    """Extract the public context artifact and enforce its hard character cap."""
+    data = out.get("data") if isinstance(out, dict) else None
+    candidate: Any = None
+    if isinstance(data, dict):
+        for field in ("context_markdown", "markdown", "text", "context"):
+            if field in data:
+                candidate = data[field]
+                break
+    if candidate is None and isinstance(out, dict):
+        candidate = out.get("text")
+    if candidate is None:
+        return ""
+    text = candidate if isinstance(candidate, str) else json.dumps(candidate, sort_keys=True)
+    if len(text) > MAX_CONTEXT_CHARS:
+        raise ValueError(
+            f"context exceeds the public {MAX_CONTEXT_CHARS:,}-character bound"
+        )
+    return text
+
+
 def ledger_evidence() -> tuple[int, dict[str, Any]]:
     """Fetch a sanitized, scoped Ledger receipt without exposing the API key."""
     if not LEDGER_URL or not LEDGER_ORG or not LEDGER_API_KEY:
-        return 503, {"error": "optional Ledger evidence is not configured"}
+        return 503, {
+            "error": "optional Ledger evidence is not configured",
+            "status": "not_configured",
+        }
 
     query = urlencode({"org": LEDGER_ORG, "external_ref": LEDGER_EXTERNAL_REF})
     request = Request(
@@ -184,7 +226,10 @@ def ledger_evidence() -> tuple[int, dict[str, Any]]:
         with urlopen(request, timeout=10) as response:
             receipt = json.loads(response.read(256_000))
     except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError):
-        return 502, {"error": "Ledger evidence could not be fetched"}
+        return 502, {
+            "error": "Ledger evidence is temporarily unavailable",
+            "status": "upstream_unavailable",
+        }
 
     events = receipt.get("events") if isinstance(receipt, dict) else []
     verification = receipt.get("verification") if isinstance(receipt, dict) else {}
@@ -198,7 +243,10 @@ def ledger_evidence() -> tuple[int, dict[str, Any]]:
     receipt_org = organization.get("id")
     receipt_external_ref = receipt.get("external_ref") if isinstance(receipt, dict) else None
     if receipt_org != LEDGER_ORG or receipt_external_ref != LEDGER_EXTERNAL_REF:
-        return 502, {"error": "Ledger evidence scope could not be verified"}
+        return 502, {
+            "error": "Ledger evidence scope could not be verified",
+            "status": "scope_unverified",
+        }
     chain_ok = verification.get("chain_ok") is True
     verified_events = verification.get("verified_events")
     if not isinstance(verified_events, int) or isinstance(verified_events, bool) or verified_events < 0:
@@ -211,6 +259,7 @@ def ledger_evidence() -> tuple[int, dict[str, Any]]:
     )
     return 200, {
         "available": True,
+        "status": "available",
         "receipt_version": receipt.get("receipt_version"),
         "organization_id": receipt_org,
         "external_ref": receipt_external_ref,
@@ -238,8 +287,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(payload)))
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("X-Content-Type-Options", "nosniff")
+        for name, value in SECURITY_HEADERS.items():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(payload)
 
@@ -376,6 +425,15 @@ class Handler(BaseHTTPRequestHandler):
                         "workspace_hash": workspace,
                     },
                 )
+                if not out.get("error"):
+                    try:
+                        public_context_text(out)
+                    except ValueError as exc:
+                        return self._send(502, {
+                            "error": str(exc),
+                            "status": "context_bound_exceeded",
+                            "limit": MAX_CONTEXT_CHARS,
+                        })
                 code, payload = result_payload(
                     out, started, operation="context", query=query
                 )
