@@ -7,7 +7,8 @@ WORKDIR /app
 COPY app.py index.html ./
 RUN mkdir -p /data && chown -R 10001:10001 /app /data
 
-ENV PERSEUS_VAULT_BIN=/usr/local/bin/perseus-vault \
+ENV HOME=/data \
+    PERSEUS_VAULT_BIN=/usr/local/bin/perseus-vault \
     DEMO_DB=/data/demo.db \
     PORT=8092 \
     VAULT_VERSION=2.23.2 \
