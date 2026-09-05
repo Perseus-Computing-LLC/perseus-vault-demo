@@ -17,4 +17,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD ["pyt
 EXPOSE 8092
 
 USER 10001:10001
+ENTRYPOINT []
 CMD ["python3", "/app/app.py"]
