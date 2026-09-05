@@ -165,6 +165,11 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('VAULT_VERSION: "2.23.2"', compose)
         self.assertNotIn("2.22.0-embedded-20260730", dockerfile)
 
+    def test_container_explicitly_resets_the_vault_base_entrypoint(self) -> None:
+        dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+        self.assertIn("ENTRYPOINT []", dockerfile)
+        self.assertIn('CMD ["python3", "/app/app.py"]', dockerfile)
+
     def test_context_success_requires_real_memory_inclusion(self) -> None:
         self.assertIn("function contextMemoryCount", self.html)
         self.assertIn("if (memoryCount < 1)", self.html)
