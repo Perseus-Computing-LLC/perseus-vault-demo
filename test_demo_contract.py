@@ -140,6 +140,23 @@ class DemoContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             app.public_context_text({"data": {"context_markdown": "x" * 2_401}})
 
+    def test_conference_surface_prioritizes_the_observable_outcome(self) -> None:
+        for marker in (
+            'id="hero-stage"',
+            'id="projector-toggle"',
+            'id="run-inspector"',
+            'id="run-receipt"',
+            'id="copy-receipt"',
+            "Presentation mode",
+            "DEMO OBSERVATION",
+        ):
+            self.assertIn(marker, self.html)
+        self.assertIn("function renderRunReceipt", self.html)
+        self.assertIn("function setProjectorMode", self.html)
+        self.assertIn("copyReceipt", self.html)
+        self.assertIn('before.textContent = "0 relevant memories · empty by design";', self.html)
+        self.assertNotIn("memories now in this scope", self.html)
+
     def test_context_success_requires_real_memory_inclusion(self) -> None:
         self.assertIn("function contextMemoryCount", self.html)
         self.assertIn("if (memoryCount < 1)", self.html)

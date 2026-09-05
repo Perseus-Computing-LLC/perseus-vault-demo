@@ -1,74 +1,91 @@
-# Conference demo direction
+# Perseus Vault conference demo direction
 
 ## Primary surface
 
-Keep the existing single-page browser demo as the primary surface. Do not split the
-story across a dashboard, benchmark page, or simulated second app.
+This is an **Operate** surface with a short **Explore** layer: the visitor watches a
+real memory workflow change state, then can inspect the bounded result. It is not a
+generic marketing landing page and it is not a benchmark dashboard.
 
 ## Audience
 
-Technical conference attendees evaluating whether an agent memory layer can make a
-later engineering task start with the right context. They need to see the product
-boundary, the observable benefit, and which parts are real without reading the
-implementation.
+Technical conference attendees, engineering leaders, and agent builders deciding
+whether durable memory can prevent repeated discovery work. The page must read from
+the back of a room: one promise, one live transformation, one honest boundary.
 
-## Short story (3–5 minutes)
+## 3–5 minute story
 
-1. Start a fresh private demo scope and show the intentional empty BEFORE state.
-2. Capture three clearly labeled, browser-supplied example memories (decision,
-   convention, fact) through the real Vault engine.
-3. Show capture progress and the actual failure boundary if any write fails.
-4. Repeat the task query and show only the relevant returned subset, including what
-   was left out.
-5. Prepare the bounded, selectable context block and show how many saved memories
-   it actually contains.
-6. Explain the result in user language: the next task can start with the relevant
-   past instead of rediscovering it. Reset and replay the story before the next run.
+1. Start in a fresh browser-scoped demo scope.
+2. Show the honest BEFORE state: zero relevant memories.
+3. Run one guided scenario that captures three clearly labeled illustrative
+   decisions/conventions/facts through the real Vault service.
+4. Show actual progress and stop visibly on any failed child operation.
+5. Ask the later-task question and show only the relevant subset, including what was
+   left out.
+6. Prepare the bounded context block and show the exact included-memory count and
+   character cap.
+7. Translate the result: the next task can begin with the relevant past instead of
+   re-deriving it.
+8. Open the run observation, copy it if useful, reset, and replay.
+
+## Surface decisions
+
+- The first viewport is an outcome-first BEFORE → AFTER stage, not a feature grid.
+- The live proof console keeps the four beats visible: START, SAVE, FIND, USE.
+- Secondary measurement, provenance, and support explanations are collapsed below
+  the proof so they do not compete with the conference narrative.
+- Presentation mode increases projection contrast and type, hides secondary content,
+  preserves the live proof, and can be toggled from the header or with `P`.
+- The final observation is explicitly bounded: it is inspectable demo evidence, not
+  a production audit receipt.
 
 ## Reality boundary
 
-- **Real:** `app.py` calls the deployed `perseus-vault` binary for remember, recall,
-  context, and feedback operations. The public flow is browser-scoped and uses the
-  hosted wrapper.
-- **Seeded/illustrative:** the example query and three memory texts live in
-  `index.html` and are supplied by the browser story. They are not customer data.
-- **Not demonstrated:** no LLM call, agent action, provider-billed event, customer
-  outcome, or benchmark result. Optional Ledger evidence is a separate, scoped
-  inspection path.
+- **Real:** `app.py` invokes the deployed `perseus-vault` binary for remember,
+  recall, context, and feedback operations. The source UI was exercised through a
+  local same-origin QA proxy forwarding API calls to the live service.
+- **Seeded/illustrative:** the example query and three memory texts in `index.html`
+  are browser-supplied story inputs. They are not customer data.
+- **Not demonstrated:** no LLM call, agent action, customer outcome, provider-billed
+  event, provider savings, benchmark result, or production audit receipt.
 
-## Current boundary and risk
+## Credibility and failure contract
 
-Source of truth: `Perseus-Computing-LLC/perseus-vault-demo`, `origin/main` at
-`327e325`. Deployment ownership is the Portainer stack described by
-`docker-compose.yml`; the public artifact is `https://vault-demo.perseus.observer/`.
-The live root matches the checked-in page apart from Cloudflare-injected scripts;
-`/healthz` reports hosted runtime Vault `2.22.0` with `source_revision: main`.
+- A non-empty generic context block is not enough for success. USE requires the
+  real response to report at least one `entities_injected` memory.
+- The hero BEFORE state remains `0 relevant memories · empty by design` after the
+  run; it does not rewrite history with the post-capture count.
+- Reset clears visible captures, context, receipt, counts, and the opaque session.
+- The run observation reports the actual captured, selected, omitted, included, and
+  bounded values, plus the real-vs-illustrative boundary.
+- No metric or receipt is presented as a customer result.
 
-The highest-impact credibility risk is a false USE success: Vault's context API can
-return a non-empty generic markdown block with `entities_injected: 0`. The current
-browser code accepts any non-empty text, so a summary can look ready even when no
-saved memory reached it.
+## Source and live boundary
 
-The source tree can be exercised locally with a real Vault binary, but the available
-standalone binaries reject fresh-demo writes as non-serveable without the deployed
-runtime's authority/bootstrap state. The successful remember → recall → context
-path was therefore verified against the current public service before editing; the
-local source path was still exercised for empty, reset, error, and bounded-context
-responses without claiming a local success run.
+Canonical source: `Perseus-Computing-LLC/perseus-vault-demo`, local branch
+`demo/conference-observable-proof`. Deployment ownership remains the Portainer stack
+specified by `docker-compose.yml`; no deployment, push, or PR is part of this pass.
+The public URL is `https://vault-demo.perseus.observer/`.
 
-## Focused slice and acceptance criteria
+The public service was exercised with a real browser before and after the source
+work through a local QA proxy. The live runtime remains the prior deployed source;
+the new conference surface is not claimed live until an authorized deployment and
+fresh public verification occur.
 
-Make USE fail closed unless the real context response reports at least one injected
-memory. Show the actual injected-memory count beside the character count and carry
-that count into the final success state. Preserve the current reset, empty, error,
-responsive, and claim-safe boundaries.
+## Acceptance criteria
 
-Acceptance:
+- The first viewport is readable at 1440×900 and has no CTA overlap.
+- Idle state says what happens next and visibly starts empty.
+- Guided run reaches success only after real BEFORE → SAVE → FIND → USE responses.
+- Success shows a relevant subset, omitted memory language, bounded context metadata,
+  and an inspectable observation artifact.
+- Receipt copy feedback works or states that manual selection is available.
+- Reset, invalid query, repeated run, projector mode, and narrow layout are tested.
+- Inline JavaScript parses, static contracts pass, and the browser path has no page
+  errors through the local-source/live-API QA proxy.
 
-- a zero-memory context response cannot produce a successful USE phase or final
-  story success;
-- a successful story shows `N memories included` from the context response, not the
-  recall count alone;
-- the bounded context remains selectable/copyable and still shows its character cap;
-- reset clears the injected-memory count and visible result;
-- existing tests remain green and new static contracts cover the fail-closed rule.
+## Anti-slop check
+
+Current composition scores **2/10** on the design slop checklist: the page retains a
+technical dark palette and a small run-fact strip, but it removes the generic feature
+wall, collapses secondary proof, commits to one live Operate surface, and makes the
+observable outcome the visual endpoint.
