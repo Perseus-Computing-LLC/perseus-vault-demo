@@ -583,6 +583,7 @@ select { min-width: 0; max-width: 100%; }
   let mode = "hybrid";
   let lastHits = [];
   let lastContextText = "";
+  let lastContextMemoryCount = 0;
   let activePhase = "";
   let storyRunning = false;
   let storyTargetCount = 0;
@@ -758,7 +759,7 @@ select { min-width: 0; max-width: 100%; }
   function renderOutcome(capturedCount, selectedCount) {
     const outcome = $("outcome-summary");
     if (!outcome) return;
-    $("outcome-detail").textContent = `Before, this task had nothing saved. Vault saved ${capturedCount} decisions, used ${selectedCount} that fit the question, and prepared a short ${lastContextText.length.toLocaleString()}-character summary.`;
+    $("outcome-detail").textContent = `Before, this task had nothing saved. Vault saved ${capturedCount} decisions, used ${selectedCount} that fit the question, and prepared a short ${lastContextText.length.toLocaleString()}-character summary containing ${lastContextMemoryCount} saved memories.`;
     $("outcome-captured").textContent = `${capturedCount} saved`;
     $("outcome-selected").textContent = `${selectedCount} used`;
     $("outcome-context").textContent = `${lastContextText.length.toLocaleString()} chars ready`;
@@ -770,6 +771,7 @@ select { min-width: 0; max-width: 100%; }
     localStorage.setItem(sessionKey, session);
     lastHits = [];
     lastContextText = "";
+    lastContextMemoryCount = 0;
     storyTargetCount = 0;
     capturedMemories = [];
     stats = { stored: 0, hits: 0, contexts: 0, followed: 0 };
@@ -803,6 +805,11 @@ select { min-width: 0; max-width: 100%; }
   function itemsFrom(payload) {
     const data = payload && payload.data;
     return data && (data.items || data.results || data.entities || data.hits) || [];
+  }
+
+  function contextMemoryCount(payload) {
+    const value = payload && payload.data && payload.data.entities_injected;
+    return Number.isInteger(value) && value >= 0 ? value : null;
   }
 
   function itemText(item) {
@@ -964,25 +971,35 @@ select { min-width: 0; max-width: 100%; }
     }
     const button = $("prepare");
     button.disabled = true; button.textContent = "Preparing…";
+    lastContextText = "";
+    lastContextMemoryCount = 0;
+    $("copy-context").disabled = true;
+    $("context-copy-status").textContent = "";
+    $("context-meta").textContent = "No usable summary yet.";
+    $("context-time").textContent = "";
     setOutput("context-output", "Preparing a short summary…", false);
     try {
       const result = await post("/api/context", { query });
       const data = result.data;
+      const memoryCount = contextMemoryCount(result);
+      if (memoryCount === null) throw new Error("Vault did not report how many saved memories reached this summary.");
+      if (memoryCount < 1) throw new Error("No saved memories were included in this summary. Find a relevant memory before preparing it.");
       const candidate = (data && (data.context_markdown || data.markdown || data.text || data.context)) || result.text || (data && JSON.stringify(data, null, 2)) || "No context was prepared.";
       const text = typeof candidate === "string" ? candidate : JSON.stringify(candidate) || "";
       if (!text.trim() || text === "No context was prepared.") throw new Error("Vault returned no usable summary for this task.");
       if (text.length > 2400) throw new Error("The summary is longer than the public 2,400-character limit.");
       lastContextText = text;
+      lastContextMemoryCount = memoryCount;
       stats.contexts += 1;
       saveStats();
       $("context-time").textContent = "ready for this task";
       const pre = document.createElement("pre");
       pre.textContent = text;
       setOutput("context-output", pre, false, true);
-      $("context-meta").textContent = `${text.length.toLocaleString()} characters · limit 2,400`;
+      $("context-meta").textContent = `${text.length.toLocaleString()} characters · limit 2,400 · ${memoryCount} memories included`;
       $("context-copy-status").textContent = "";
       $("copy-context").disabled = false;
-      if (!storyRunning) setPhase("use", "complete", `summary ready · ${lastHits.length} memories included`);
+      if (!storyRunning) setPhase("use", "complete", `summary ready · ${memoryCount} memories included`);
       toast("Summary ready — use it to start the task.");
       return result;
     } catch (error) {
@@ -1075,7 +1092,8 @@ select { min-width: 0; max-width: 100%; }
       setStoryState("Preparing a short summary…", "running");
       const contextResult = await prepareContext(true);
       if (!contextResult || !lastContextText) throw new Error("No usable summary was returned.");
-      setPhase("use", "complete", `summary ready · ${afterHits.length} memories included`);
+      if (lastContextMemoryCount < 1) throw new Error("No saved memories reached the usable summary.");
+      setPhase("use", "complete", `summary ready · ${lastContextMemoryCount} memories included`);
       renderOutcome(capturedMemories.length, afterHits.length);
 
       setStoryState("Complete · start → save → find → use", "success");
