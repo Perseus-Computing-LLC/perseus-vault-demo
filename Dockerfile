@@ -1,4 +1,4 @@
-FROM local/perseus-vault:2.22.0-embedded-20260730
+FROM local/perseus-vault:2.23.2-aar-1205-7b4b42b6
 
 USER 0:0
 WORKDIR /app
@@ -8,7 +8,7 @@ RUN mkdir -p /data && chown -R 10001:10001 /app /data
 ENV PERSEUS_VAULT_BIN=/usr/local/bin/perseus-vault \
     DEMO_DB=/data/demo.db \
     PORT=8092 \
-    VAULT_VERSION=2.22.0 \
+    VAULT_VERSION=2.23.2 \
     SOURCE_REPOSITORY=https://github.com/Perseus-Computing-LLC/perseus-vault-demo \
     SOURCE_REVISION=main \
     LEDGER_URL=https://ledger.perseus.observer

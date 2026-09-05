@@ -23,7 +23,7 @@ from urllib.request import Request, urlopen
 
 PERSEUS_VAULT = os.environ.get("PERSEUS_VAULT_BIN", "/usr/local/bin/perseus-vault")
 VAULT_IMAGE = os.environ.get("VAULT_IMAGE", "local/perseus-vault-demo:aesthetic-collapsible")
-VAULT_VERSION = os.environ.get("VAULT_VERSION", "2.22.0")
+VAULT_VERSION = os.environ.get("VAULT_VERSION", "2.23.2")
 # Keep the public provenance link on the canonical public repository even if a
 # deployment supplies other internal build metadata in its environment.
 SOURCE_REPOSITORY = "https://github.com/Perseus-Computing-LLC/perseus-vault-demo"

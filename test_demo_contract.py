@@ -157,6 +157,14 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('before.textContent = "0 relevant memories · empty by design";', self.html)
         self.assertNotIn("memories now in this scope", self.html)
 
+    def test_runtime_base_matches_the_verified_host_image(self) -> None:
+        dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+        compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
+        self.assertIn("FROM local/perseus-vault:2.23.2-aar-1205-7b4b42b6", dockerfile)
+        self.assertIn('VAULT_VERSION=2.23.2', dockerfile)
+        self.assertIn('VAULT_VERSION: "2.23.2"', compose)
+        self.assertNotIn("2.22.0-embedded-20260730", dockerfile)
+
     def test_context_success_requires_real_memory_inclusion(self) -> None:
         self.assertIn("function contextMemoryCount", self.html)
         self.assertIn("if (memoryCount < 1)", self.html)
