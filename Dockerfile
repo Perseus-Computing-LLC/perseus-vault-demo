@@ -1,6 +1,8 @@
-FROM local/perseus-vault:2.23.2-aar-1205-7b4b42b6
+FROM local/perseus-vault:2.23.2-aar-1205-7b4b42b6 AS vault
 
+FROM python:3.12-slim
 USER 0:0
+COPY --from=vault /usr/local/bin/perseus-vault /usr/local/bin/perseus-vault
 WORKDIR /app
 COPY app.py index.html ./
 RUN mkdir -p /data && chown -R 10001:10001 /app /data

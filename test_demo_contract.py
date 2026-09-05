@@ -160,7 +160,9 @@ class DemoContractTests(unittest.TestCase):
     def test_runtime_base_matches_the_verified_host_image(self) -> None:
         dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
         compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
-        self.assertIn("FROM local/perseus-vault:2.23.2-aar-1205-7b4b42b6", dockerfile)
+        self.assertIn("FROM local/perseus-vault:2.23.2-aar-1205-7b4b42b6 AS vault", dockerfile)
+        self.assertIn("FROM python:3.12-slim", dockerfile)
+        self.assertIn("COPY --from=vault /usr/local/bin/perseus-vault /usr/local/bin/perseus-vault", dockerfile)
         self.assertIn('VAULT_VERSION=2.23.2', dockerfile)
         self.assertIn('VAULT_VERSION: "2.23.2"', compose)
         self.assertNotIn("2.22.0-embedded-20260730", dockerfile)
