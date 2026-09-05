@@ -3,574 +3,325 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Perseus Vault — memory that changes the next session</title>
-<meta name="description" content="Perseus Vault gives AI agents durable memory across tasks. Save a decision, find it later, and give the next task a short, useful summary in this live demo.">
+<title>Perseus Vault — give the next task the right past</title>
+<meta name="description" content="Run a live, browser-scoped Perseus Vault story: start empty, save decisions, retrieve only what fits, and prepare bounded context for the next task.">
 <link rel="canonical" href="https://vault-demo.perseus.observer/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://vault-demo.perseus.observer/">
-<meta property="og:title" content="Perseus Vault — persistent memory for AI agents">
-<meta property="og:description" content="Save one decision, find it in a later task, and give the next task a short, useful summary. Try the live demo.">
+<meta property="og:title" content="Perseus Vault — give the next task the right past">
+<meta property="og:description" content="Save one decision. Ask a later task what it needs. See the relevant context appear in this live demo.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Perseus Vault — persistent memory for AI agents">
-<meta name="twitter:description" content="Try the real memory loop: save a decision, find it later, and start the next task with the right information.">
-<meta name="theme-color" content="#090b10">
+<meta name="twitter:title" content="Perseus Vault — give the next task the right past">
+<meta name="twitter:description" content="A live proof of durable memory for AI-agent work: start empty, save, retrieve, prepare.">
+<meta name="theme-color" content="#07100d">
 <style>
 :root {
-  --bg: #090b10;
-  --bg-raised: #0f131b;
-  --panel: #121822;
-  --panel-strong: #171f2b;
-  --line: #263242;
-  --line-bright: #34465c;
-  --text: #f3f6fa;
-  --muted: #a9b5c4;
-  --quiet: #718094;
-  --green: #55d99a;
-  --green-deep: #1d6b4c;
-  --violet: #b79aff;
-  --violet-deep: #5139a0;
-  --amber: #f3bd62;
-  --red: #ff8f85;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --bg: #07100d;
+  --bg-2: #0b1712;
+  --surface: #0f1d17;
+  --surface-2: #13251d;
+  --surface-3: #182d23;
+  --line: #294237;
+  --line-strong: #3b5c4b;
+  --ink: #eff8f0;
+  --muted: #b5c8ba;
+  --quiet: #7e9987;
+  --lime: #c6ff69;
+  --lime-ink: #07100d;
+  --aqua: #8de4c0;
+  --amber: #ffc66e;
+  --red: #ff8e86;
+  --violet: #c8b4ff;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --radius: 16px;
 }
 * { box-sizing: border-box; }
 html { background: var(--bg); scroll-behavior: smooth; }
-body { margin: 0; color: var(--text); background:
-  radial-gradient(circle at 78% 4%, rgba(98, 73, 193, .16), transparent 32rem),
-  radial-gradient(circle at 8% 28%, rgba(35, 130, 93, .10), transparent 28rem), var(--bg);
-  font: 15px/1.55 var(--sans); }
-a { color: var(--green); text-decoration: none; }
-a:hover { color: #8be8bb; }
+body { margin: 0; color: var(--ink); background:
+  radial-gradient(circle at 78% 0%, rgba(198,255,105,.08), transparent 32rem),
+  radial-gradient(circle at 5% 36%, rgba(141,228,192,.065), transparent 28rem), var(--bg);
+  font: 16px/1.55 var(--sans); }
+body.projector { --ink: #ffffff; --muted: #d0ded2; --quiet: #a2b9a8; --line: #426050; --line-strong: #668a71; --surface: #11231a; --surface-2: #173022; --surface-3: #1d3a29; }
+body.projector .secondary, body.projector .footer { display: none; }
+body.projector .hero { min-height: calc(100svh - 69px); align-items: center; }
+body.projector .hero h1 { font-size: clamp(52px, 7vw, 104px); }
+body.projector .stage-pane { min-height: 250px; }
+body.projector .stage-pane h3 { font-size: 25px; }
+body.projector .stage-detail, body.projector .stage-summary { font-size: 17px; }
+body.projector .story-console { padding: 18px; }
+body.projector .hero { grid-template-columns: minmax(0, 1fr) minmax(480px, 1fr); gap: 48px; }
+body.projector .hero-actions { flex-wrap: nowrap; gap: 16px; }
+body.projector .btn { min-height: 52px; padding-inline: 22px; font-size: 17px; }
+body.projector .stage-head, body.projector .stage-foot, body.projector .stage-label, body.projector .proof-phase-label, body.projector .field-label, body.projector .operation-title, body.projector .operation-time, body.projector .context-meta, body.projector .story-status { font-size: 13px; }
+body.projector .run-receipt { max-height: 360px; font-size: 15px; line-height: 1.75; }
+body.projector .outcome-path span { font-size: 14px; }
+body.projector .toast { display: none !important; }
+a { color: var(--lime); text-decoration: none; }
+a:hover { color: #e0ff9a; }
 button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
-button:disabled { cursor: wait; opacity: .58; }
-:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
-.shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
-.topbar { border-bottom: 1px solid rgba(52, 70, 92, .62); background: rgba(9, 11, 16, .94); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 20; }
-.topbar-inner { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; letter-spacing: -.02em; }
-.brand-mark { width: 27px; height: 27px; border: 1px solid var(--violet); border-radius: 8px; display: grid; place-items: center; color: var(--violet); font: 13px var(--mono); box-shadow: 0 0 24px rgba(183, 154, 255, .16); }
-.nav-links { display: flex; align-items: center; gap: 24px; color: var(--muted); font-size: 14px; }
+button:disabled { cursor: wait; opacity: .55; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+[hidden] { display: none !important; }
+.skip-link { position: fixed; z-index: 100; left: 12px; top: 8px; transform: translateY(-160%); opacity: 0; pointer-events: none; padding: 10px 13px; border-radius: 9px; color: var(--lime-ink); background: var(--lime); font-weight: 800; }
+.skip-link:focus { transform: translateY(0); opacity: 1; pointer-events: auto; }
+.shell { width: min(1220px, calc(100% - 48px)); margin: 0 auto; }
+.topbar { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid rgba(66,96,80,.55); background: rgba(7,16,13,.93); backdrop-filter: blur(18px); }
+.topbar-inner { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font-weight: 780; letter-spacing: -.025em; }
+.brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--lime); border-radius: 9px; color: var(--lime); font: 15px var(--mono); box-shadow: 0 0 28px rgba(198,255,105,.12); }
+.brand-note { color: var(--quiet); font-weight: 500; }
+.topbar-right { display: flex; align-items: center; gap: 18px; }
+.nav-links { display: flex; gap: 18px; color: var(--muted); font-size: 13px; }
 .nav-links a { color: var(--muted); }
-.nav-links a:hover { color: var(--text); }
+.nav-links a:hover { color: var(--ink); }
+.projector-toggle { min-height: 40px; padding: 8px 11px; border: 1px solid var(--line-strong); border-radius: 9px; color: var(--ink); background: transparent; font-size: 12px; font-weight: 750; }
+.projector-toggle:hover, .projector-toggle[aria-pressed="true"] { color: var(--lime-ink); border-color: var(--lime); background: var(--lime); }
 .mobile-source { display: none; color: var(--muted); font: 12px var(--mono); }
-.mobile-source:hover { color: var(--text); }
-.hero { padding: 74px 0 42px; }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr); gap: 64px; align-items: center; }
-.eyebrow { color: var(--amber); font: 600 11px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; }
-h1 { max-width: 760px; margin: 15px 0 18px; font-size: clamp(40px, 6.2vw, 74px); line-height: .98; letter-spacing: -.065em; }
-h1 .accent { color: var(--green); }
-.hero-lead { max-width: 650px; margin: 0; color: var(--muted); font-size: clamp(17px, 2vw, 20px); line-height: 1.55; }
-.hero-category { margin: 0 0 12px; color: var(--text); font-size: 14px; font-weight: 700; letter-spacing: .01em; }
-.hero-actions { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; margin-top: 28px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 43px; border-radius: 9px; padding: 10px 16px; border: 1px solid var(--line-bright); color: var(--text); background: var(--panel); font-weight: 700; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
-.btn:hover { color: var(--text); border-color: #55708e; background: var(--panel-strong); transform: translateY(-1px); }
-.btn-primary { color: #07130e; background: var(--green); border-color: var(--green); }
-.btn-primary:hover { color: #07130e; background: #7be6b1; border-color: #7be6b1; }
-.btn-violet { color: #f8f6ff; background: var(--violet-deep); border-color: #7659d1; }
-.btn-violet:hover { color: #fff; background: #6248bd; border-color: #9277ed; }
-.btn-small { min-height: 35px; padding: 7px 11px; border-radius: 7px; font-size: 13px; }
-.hero-note { margin: 16px 0 0; color: var(--quiet); font: 12px/1.5 var(--mono); }
-.flow-card { border: 1px solid var(--line-bright); background: linear-gradient(145deg, rgba(24, 33, 47, .96), rgba(13, 17, 25, .96)); border-radius: 18px; padding: 22px; box-shadow: 0 22px 80px rgba(0, 0, 0, .25); }
-.flow-head { display: flex; justify-content: space-between; gap: 16px; align-items: start; margin-bottom: 22px; }
-.flow-label { color: var(--quiet); font: 12px var(--mono); text-transform: uppercase; letter-spacing: .12em; }
-.live-dot { display: inline-flex; align-items: center; gap: 7px; color: var(--green); font: 12px var(--mono); }
-.live-dot::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: var(--green); box-shadow: 0 0 0 5px rgba(85, 217, 154, .10); }
-.flow-step { display: grid; grid-template-columns: 35px minmax(0, 1fr); gap: 14px; position: relative; }
-.flow-step:not(:last-child)::after { content: ""; position: absolute; left: 16px; top: 34px; bottom: -18px; width: 1px; background: linear-gradient(var(--line-bright), transparent); }
-.step-number { width: 33px; height: 33px; display: grid; place-items: center; border-radius: 10px; color: var(--violet); background: rgba(183, 154, 255, .11); border: 1px solid rgba(183, 154, 255, .32); font: 600 12px var(--mono); }
-.flow-step:nth-child(3) .step-number { color: var(--green); background: rgba(85, 217, 154, .10); border-color: rgba(85, 217, 154, .32); }
-.flow-step h3 { margin: 0; font-size: 15px; }
-.flow-step p { margin: 3px 0 20px; color: var(--muted); font-size: 14px; }
-.flow-code { display: block; color: #dbe4ef; background: #090d13; border: 1px solid #263545; border-radius: 7px; padding: 9px 11px; font: 12px/1.55 var(--mono); overflow-wrap: anywhere; }
-.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 21px; }
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 13px; }
-.chip::before { content: "✓"; color: var(--green); font-weight: 800; }
-.sandbox { margin: 8px auto 58px; border: 1px solid rgba(243, 189, 98, .25); background: rgba(243, 189, 98, .06); border-radius: 10px; padding: 12px 15px; color: var(--muted); font-size: 13px; line-height: 1.55; }
-.sandbox strong { color: var(--amber); }
-.trust-strip { display: flex; align-items: center; gap: 9px 18px; flex-wrap: wrap; margin: 0 auto 12px; padding: 11px 14px; border: 1px solid rgba(85, 217, 154, .22); border-radius: 10px; background: rgba(85, 217, 154, .045); color: var(--muted); font-size: 13px; }
-.trust-strip strong { color: var(--green); }
-.trust-strip span:not(:first-child)::before { content: "·"; margin-right: 18px; color: var(--line-bright); }
-.experience { scroll-margin-top: 88px; padding: 36px 0 0; }
-.experience::before { content: ""; display: block; height: 1px; margin-top: -1px; }
-.experience-header { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 14px; }
-.experience-header h2 { margin: 8px 0 0; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.04em; }
-.experience-header p { max-width: 550px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
-.story-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 12px 12px 0 0; padding: 12px 14px; }
-.story-controls { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
-.story-controls label { color: var(--quiet); font: 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
-select, input, textarea { color: var(--text); background: #0a0f16; border: 1px solid var(--line-bright); border-radius: 8px; padding: 9px 10px; }
-select { min-width: 190px; }
-textarea { width: 100%; min-height: 105px; resize: vertical; line-height: 1.5; }
+.hero { display: grid; grid-template-columns: minmax(0, .86fr) minmax(430px, 1.14fr); gap: clamp(34px, 6vw, 92px); align-items: center; min-height: 730px; padding: 70px 0 62px; }
+.eyebrow { color: var(--amber); font: 700 11px/1.2 var(--mono); letter-spacing: .18em; text-transform: uppercase; }
+.hero h1 { max-width: 690px; margin: 17px 0 21px; font-size: clamp(48px, 6.2vw, 88px); line-height: .98; letter-spacing: -.075em; text-wrap: pretty; }
+.hero h1 .accent { color: var(--lime); }
+.hero-category { max-width: 620px; margin: 0 0 12px; color: var(--ink); font-size: 15px; font-weight: 750; }
+.hero-lead { max-width: 650px; margin: 0; color: var(--muted); font-size: clamp(18px, 2vw, 22px); line-height: 1.48; text-wrap: pretty; }
+.hero-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
+.btn { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--ink); background: var(--surface); font-weight: 800; transition: transform .16s ease, background .16s ease, border-color .16s ease; }
+.btn:hover { color: var(--ink); border-color: #6a9277; background: var(--surface-2); transform: translateY(-1px); }
+.btn-primary { color: var(--lime-ink); border-color: var(--lime); background: var(--lime); }
+.btn-primary:hover { color: var(--lime-ink); border-color: #ddff9d; background: #ddff9d; }
+.btn-secondary { color: var(--aqua); border-color: rgba(141,228,192,.4); background: rgba(141,228,192,.04); }
+.btn-small { min-height: 40px; padding: 8px 12px; border-radius: 8px; font-size: 13px; }
+.hero-boundary { max-width: 620px; margin: 19px 0 0; color: var(--quiet); font: 12px/1.55 var(--mono); }
+.hero-boundary strong { color: var(--aqua); }
+.stage { border: 1px solid var(--line-strong); border-radius: 20px; background: rgba(15,29,23,.93); box-shadow: 0 24px 80px rgba(0,0,0,.24); overflow: hidden; }
+.stage-head, .stage-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 17px; color: var(--quiet); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.stage-head { border-bottom: 1px solid var(--line); }
+.stage-foot { border-top: 1px solid var(--line); letter-spacing: .02em; text-transform: none; }
+.stage-status { color: var(--amber); }
+.stage-status[data-state="success"] { color: var(--lime); }
+.stage-status[data-state="active"] { color: var(--aqua); }
+.stage-grid { display: grid; grid-template-columns: minmax(0, .85fr) 46px minmax(0, 1.15fr); gap: 12px; align-items: stretch; padding: 17px; }
+.stage-pane { min-height: 214px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); }
+.stage-pane.after { border-color: rgba(198,255,105,.38); background: linear-gradient(145deg, rgba(26,57,36,.58), rgba(11,23,17,.94)); }
+.stage-label { color: var(--quiet); font: 700 10px var(--mono); letter-spacing: .16em; }
+.stage-pane.after .stage-label { color: var(--lime); }
+.stage-pane h3 { margin: 10px 0 7px; font-size: 21px; letter-spacing: -.04em; }
+.stage-detail { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.45; }
+.stage-question { margin-top: 24px; padding: 12px 13px; border-left: 2px solid var(--amber); color: var(--ink); background: rgba(255,198,110,.06); font-size: 14px; line-height: 1.45; }
+.stage-summary { margin-top: 24px; color: var(--aqua); font: 700 13px/1.45 var(--mono); }
+.stage-arrow { display: grid; place-items: center; color: var(--lime); font-size: 28px; }
+.trust-line { display: flex; align-items: center; gap: 10px 22px; flex-wrap: wrap; padding: 13px 16px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.trust-line strong { color: var(--lime); }
+.trust-line span::before { content: "·"; margin-right: 22px; color: var(--line-strong); }
+.demo-shell { scroll-margin-top: 84px; padding: 82px 0 0; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 26px; margin-bottom: 24px; }
+.section-heading h2 { max-width: 640px; margin: 8px 0 0; font-size: clamp(30px, 4vw, 52px); line-height: 1.02; letter-spacing: -.065em; text-wrap: pretty; }
+.section-heading p { max-width: 440px; margin: 0; color: var(--muted); font-size: 15px; }
+.story-console { padding: 18px; border: 1px solid var(--line-strong); border-radius: 18px; background: rgba(11,23,17,.8); }
+.story-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.story-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.story-controls label { color: var(--quiet); font: 700 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+.story-controls select { min-width: 210px; }
+select, input, textarea { color: var(--ink); border: 1px solid var(--line-strong); border-radius: 9px; background: var(--bg-2); padding: 10px 11px; }
+textarea { width: 100%; min-height: 108px; resize: vertical; line-height: 1.5; }
 input { width: 100%; }
 .story-status { color: var(--quiet); font: 12px var(--mono); }
-.story-status[data-state="success"] { color: var(--green); }
+.story-status[data-state="success"] { color: var(--lime); }
 .story-status[data-state="error"] { color: var(--red); }
-.proof-rail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin: 12px 0 0; }
-.proof-phase { min-width: 0; padding: 13px 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(18, 24, 34, .64); }
-.proof-phase[data-state="active"] { border-color: rgba(243, 189, 98, .52); background: rgba(243, 189, 98, .07); }
-.proof-phase[data-state="complete"] { border-color: rgba(85, 217, 154, .38); background: rgba(85, 217, 154, .06); }
-.proof-phase[data-state="error"] { border-color: rgba(255, 143, 133, .55); background: rgba(255, 143, 133, .07); }
-.proof-phase-label { color: var(--quiet); font: 600 10px var(--mono); letter-spacing: .12em; }
+.proof-rail { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin: 16px 0 0; }
+.proof-phase { min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); }
+.proof-phase[data-state="active"] { border-color: var(--amber); background: rgba(255,198,110,.08); }
+.proof-phase[data-state="complete"] { border-color: rgba(198,255,105,.5); background: rgba(198,255,105,.06); }
+.proof-phase[data-state="error"] { border-color: var(--red); background: rgba(255,142,134,.08); }
+.proof-phase-label { color: var(--quiet); font: 700 10px var(--mono); letter-spacing: .14em; }
 .proof-phase[data-state="active"] .proof-phase-label { color: var(--amber); }
-.proof-phase[data-state="complete"] .proof-phase-label { color: var(--green); }
+.proof-phase[data-state="complete"] .proof-phase-label { color: var(--lime); }
 .proof-phase[data-state="error"] .proof-phase-label { color: var(--red); }
-.proof-phase h3 { margin: 7px 0 3px; font-size: 14px; }
-.proof-phase-detail { min-height: 38px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-.run-boundary { margin: 10px 2px 0; color: var(--quiet); font: 11px/1.5 var(--mono); }
-.outcome-summary { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; margin: 14px 0 0; padding: 16px 18px; border: 1px solid rgba(85, 217, 154, .38); border-radius: 12px; background: linear-gradient(105deg, rgba(24, 73, 55, .42), rgba(18, 24, 34, .78)); }
-.outcome-summary[hidden] { display: none; }
-.outcome-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: #07130e; background: var(--green); font-weight: 900; }
-.outcome-kicker { color: var(--green); font: 600 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
-.outcome-summary h3 { margin: 5px 0 3px; font-size: 18px; letter-spacing: -.02em; }
-.outcome-summary p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
-.outcome-path { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
-.outcome-path span { padding: 5px 8px; border: 1px solid rgba(85, 217, 154, .25); border-radius: 6px; color: var(--text); background: rgba(9, 13, 19, .48); font: 11px var(--mono); }
-.outcome-path .outcome-arrow { padding: 0; border: 0; color: var(--green); background: transparent; }
-.workspace { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 14px; padding: 14px; background: rgba(15, 19, 27, .72); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 14px 14px; }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
-.panel-kicker { color: var(--violet); font: 600 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
-.panel-kicker.green { color: var(--green); }
-.panel h3 { margin: 7px 0 4px; font-size: 20px; letter-spacing: -.03em; }
-.panel-intro { margin: 0 0 15px; color: var(--muted); font-size: 14px; line-height: 1.55; }
-.field-label { display: block; margin: 13px 0 5px; color: var(--quiet); font: 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
-.field-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 145px); gap: 9px; }
-select { min-width: 0; max-width: 100%; }
+.proof-phase h3 { margin: 8px 0 4px; font-size: 15px; }
+.proof-phase-detail { min-height: 39px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.run-boundary { margin: 13px 2px 0; color: var(--quiet); font: 12px/1.55 var(--mono); }
+.workspace { display: grid; grid-template-columns: minmax(260px,.74fr) minmax(0,1.26fr); gap: 14px; margin-top: 16px; }
+.panel { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.panel.use { border-color: rgba(141,228,192,.28); background: linear-gradient(145deg, rgba(17,39,28,.9), rgba(15,29,23,.95)); }
+.panel-kicker { color: var(--violet); font: 700 10px var(--mono); letter-spacing: .14em; }
+.panel-kicker.green { color: var(--lime); }
+.panel h3 { margin: 8px 0 5px; font-size: 23px; letter-spacing: -.045em; }
+.panel-intro { max-width: 560px; margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+.field-label { display: block; margin: 14px 0 6px; color: var(--quiet); font: 700 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+.field-row { display: grid; grid-template-columns: minmax(0,1fr) 145px; gap: 9px; }
 .sample-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 9px; }
-.sample { border: 1px solid var(--line); border-radius: 99px; padding: 5px 9px; color: var(--muted); background: transparent; font-size: 12px; }
-.sample:hover { color: var(--text); border-color: var(--line-bright); background: var(--panel-strong); }
-.panel-actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
-.mode-tabs { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: #0a0f16; }
-.mode-tab { border: 0; border-radius: 6px; padding: 6px 9px; color: var(--quiet); background: transparent; font: 11px var(--mono); }
-.mode-tab[aria-selected="true"] { color: var(--text); background: var(--violet-deep); }
-.operation { margin-top: 14px; }
+.sample { min-height: 34px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); background: transparent; font-size: 12px; }
+.sample:hover { color: var(--ink); border-color: var(--line-strong); background: var(--surface-2); }
+.panel-actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 15px; }
+.mode-tabs { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg-2); }
+.mode-tab { min-height: 34px; border: 0; border-radius: 6px; padding: 6px 9px; color: var(--quiet); background: transparent; font: 11px var(--mono); }
+.mode-tab[aria-selected="true"] { color: var(--lime-ink); background: var(--lime); }
+.operation { margin-top: 16px; }
 .operation-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
-.operation-title { color: var(--quiet); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.operation-title { color: var(--quiet); font: 700 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
 .operation-time { color: var(--quiet); font: 11px var(--mono); }
-.output { margin-top: 8px; min-height: 125px; max-height: 315px; overflow: auto; border-radius: 9px; border: 1px solid #243243; background: #090d13; padding: 11px; }
-.output.empty { display: grid; place-items: center; min-height: 96px; color: var(--quiet); font-size: 12px; text-align: center; }
-.output.success { border-color: rgba(85, 217, 154, .34); box-shadow: inset 3px 0 0 var(--green); }
-.output pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #cbd7e4; font: 12px/1.6 var(--mono); }
-.capture-log { margin-top: 17px; padding-top: 13px; border-top: 1px solid var(--line); }
+.output { min-height: 132px; max-height: 335px; margin-top: 8px; overflow: auto; padding: 13px; border: 1px solid #315344; border-radius: 10px; background: #07100d; }
+.output.empty { display: grid; place-items: center; min-height: 103px; color: var(--quiet); font-size: 13px; text-align: center; }
+.output.success { border-color: rgba(198,255,105,.5); box-shadow: inset 3px 0 0 var(--lime); }
+.output pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #d4e5d7; font: 12px/1.65 var(--mono); }
+.capture-log { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
 .capture-list { margin-top: 8px; color: var(--muted); }
 .capture-list:empty::before { content: "Nothing saved yet in this session."; color: var(--quiet); font-size: 12px; }
-.capture-item { padding: 8px 0; border-bottom: 1px solid #1e2937; }
+.capture-item { padding: 9px 0; border-bottom: 1px solid #234033; }
 .capture-item:last-child { border-bottom: 0; padding-bottom: 0; }
 .capture-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.capture-item-kind { color: var(--violet); font: 10px var(--mono); text-transform: uppercase; }
+.capture-item-kind { color: var(--violet); font: 700 10px var(--mono); text-transform: uppercase; }
 .capture-item-key { color: var(--quiet); font: 11px var(--mono); overflow-wrap: anywhere; text-align: right; }
-.capture-item-text { margin: 3px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-.hit { padding: 10px 0; border-bottom: 1px solid #1e2937; }
+.capture-item-text { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.hit { padding: 11px 0; border-bottom: 1px solid #234033; }
 .hit:last-child { border-bottom: 0; padding-bottom: 0; }
 .hit-top { display: flex; align-items: center; justify-content: space-between; gap: 9px; }
-.hit-kind { color: var(--amber); font: 11px var(--mono); text-transform: uppercase; }
+.hit-kind { color: var(--amber); font: 700 10px var(--mono); text-transform: uppercase; }
 .hit-meta { color: var(--quiet); font: 11px var(--mono); }
-.hit-text { margin: 4px 0 7px; color: var(--text); font-size: 14px; }
+.hit-text { margin: 5px 0 8px; color: var(--ink); font-size: 15px; }
 .hit-actions { display: flex; gap: 7px; align-items: center; }
-.hit-actions button { border: 1px solid var(--line); border-radius: 6px; padding: 4px 7px; color: var(--muted); background: transparent; font-size: 11px; }
-.hit-actions button:hover { color: var(--green); border-color: var(--green-deep); }
-.confidence { color: var(--green); font: 11px var(--mono); }
-.selection-summary { margin-bottom: 8px; padding: 9px 10px; border: 1px solid rgba(85, 217, 154, .22); border-radius: 7px; background: rgba(85, 217, 154, .05); color: var(--muted); font-size: 12px; line-height: 1.5; }
-.selection-summary strong { color: var(--text); }
-.selection-omitted { margin: 5px 0 0; color: var(--quiet); font-size: 11px; }
-.context-tools { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 9px; }
+.hit-actions button { min-height: 32px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); background: transparent; font-size: 11px; }
+.hit-actions button:hover { color: var(--lime); border-color: var(--lime); }
+.confidence { color: var(--aqua); font: 11px var(--mono); }
+.selection-summary { margin-bottom: 8px; padding: 10px 11px; border: 1px solid rgba(141,228,192,.25); border-radius: 8px; background: rgba(141,228,192,.06); color: var(--muted); font-size: 12px; }
+.selection-summary strong { color: var(--ink); }
+.selection-omitted { margin: 6px 0 0; color: var(--quiet); font-size: 11px; }
+.context-tools { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 .context-meta, .context-copy-status { color: var(--quiet); font: 11px var(--mono); }
-.context-copy-status { color: var(--green); }
+.context-copy-status { color: var(--lime); }
 .context-tools .btn { flex: 0 0 auto; }
-.value-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 0; }
-.value-cell { border: 1px solid var(--line); border-radius: 10px; padding: 13px; background: rgba(18, 24, 34, .7); }
-.value-number { color: var(--text); font: 600 22px var(--mono); }
-.value-label { margin-top: 3px; color: var(--quiet); font-size: 12px; }
-.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
-.compare-card { border-radius: 12px; padding: 20px; border: 1px solid var(--line); background: var(--panel); }
-.compare-card.good { border-color: rgba(85, 217, 154, .38); background: linear-gradient(145deg, rgba(22, 53, 43, .48), rgba(18, 24, 34, .9)); }
-.compare-card h3 { margin: 0 0 5px; font-size: 17px; }
-.compare-card p { color: var(--muted); font-size: 14px; line-height: 1.55; margin: 0 0 12px; }
-.compare-card ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.5; }
-.compare-card li { margin: 5px 0; }
-.compare-card.good li::marker { color: var(--green); }
-.compare-card:not(.good) li::marker { color: var(--quiet); }
-.proof { margin: 56px auto 0; padding: 34px 0 44px; border-top: 1px solid var(--line); }
-.proof-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 36px; align-items: start; }
-.proof h2 { max-width: 15ch; margin: 8px 0 12px; font-size: clamp(26px, 3vw, 38px); letter-spacing: -.045em; line-height: 1.04; }
-.proof p { color: var(--muted); font-size: 15px; line-height: 1.65; }
-.proof-copy { max-width: 470px; }
-.receipt { border: 1px solid var(--line-bright); border-radius: 13px; background: linear-gradient(145deg, rgba(18, 27, 38, .96), #0b1017); padding: 20px; box-shadow: 0 16px 44px rgba(0, 0, 0, .18); }
-.receipt-head { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
-.receipt-kicker { color: var(--quiet); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
-.receipt-title { margin-top: 4px; color: var(--text); font-size: 17px; font-weight: 700; }
-.receipt-status { display: inline-flex; align-items: center; gap: 6px; color: var(--green); border: 1px solid rgba(85, 217, 154, .25); border-radius: 999px; padding: 5px 8px; font: 11px var(--mono); white-space: nowrap; }
-.receipt-status.illustrative { color: var(--amber); border-color: rgba(243, 189, 98, .32); }
-.receipt-status::before { content: "✓"; }
-.receipt-rows { margin-top: 17px; border-top: 1px solid rgba(52, 70, 92, .78); }
-.receipt-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); gap: 18px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid rgba(38, 50, 66, .7); }
-.receipt-row span { color: var(--quiet); font: 11px var(--mono); }
-.receipt-row strong { color: #dbe4ef; font: 13px var(--mono); text-align: right; }
-.receipt-links { margin: 16px 0 0; color: var(--quiet); font-size: 13px !important; }
-.receipt-links a { color: var(--green); font-weight: 600; }
-.disclaimer { border-left: 2px solid var(--amber); padding-left: 13px; color: var(--quiet) !important; font-size: 12px !important; }
-.support { display: flex; align-items: center; justify-content: space-between; gap: 22px; flex-wrap: wrap; margin-top: 34px; padding: 19px 20px; border: 1px solid rgba(183, 154, 255, .3); background: linear-gradient(100deg, rgba(81, 57, 160, .14), rgba(81, 57, 160, .05)); border-radius: 11px; }
-.support p { margin: 0; font-size: 14px; line-height: 1.55; }
-.support p strong { color: var(--text); }
-.support-actions { display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.support a { color: var(--violet); border: 1px solid rgba(183, 154, 255, .38); border-radius: 7px; padding: 8px 11px; font-weight: 700; font-size: 13px; }
-.support a:hover { color: #fff; border-color: var(--violet); background: rgba(183, 154, 255, .12); }
-.sponsor-button { display: block; width: 114px; height: 32px; border: 0; border-radius: 6px; }
-.support-actions .sponsor-button.embed-failed { display: none; }
-.sponsor-card-wrap { margin: 18px auto 0; padding: 0 15px; border: 1px solid rgba(183, 154, 255, .18); border-radius: 11px; background: rgba(9, 11, 16, .55); }
-.sponsor-card-summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 50px; cursor: pointer; list-style: none; }
-.sponsor-card-summary::-webkit-details-marker { display: none; }
-.sponsor-card-summary::after { content: "+"; color: var(--violet); font: 18px/1 var(--mono); }
-.sponsor-card-wrap[open] .sponsor-card-summary::after { content: "−"; }
-.sponsor-card-label { color: var(--quiet); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
-.sponsor-card-action { color: var(--violet); font: 12px var(--mono); }
-.sponsor-card-body { display: grid; justify-items: center; gap: 9px; padding: 0 0 15px; }
-.sponsor-card { display: block; width: min(600px, 100%); height: 225px; border: 0; }
-.sponsor-fallback { display: block; max-width: 600px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; text-align: center; }
-.sponsor-fallback a { color: var(--violet); font-weight: 700; }
-.sponsor-card-wrap.embed-failed .sponsor-card { display: none; }
-.provenance { margin: 18px 0 0; padding: 14px 16px; border: 1px solid rgba(85, 217, 154, .22); border-radius: 10px; background: rgba(85, 217, 154, .045); }
+.outcome-summary { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 14px; align-items: start; margin-top: 16px; padding: 20px; border: 1px solid rgba(198,255,105,.5); border-radius: 14px; background: linear-gradient(110deg, rgba(33,69,39,.65), rgba(15,29,23,.92)); }
+.outcome-summary[hidden] { display: none; }
+.outcome-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; color: var(--lime-ink); background: var(--lime); font-weight: 950; }
+.outcome-kicker { color: var(--lime); font: 700 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+.outcome-summary h3 { margin: 6px 0 4px; font-size: 22px; letter-spacing: -.04em; }
+.outcome-summary p { margin: 0; color: var(--muted); font-size: 14px; }
+.outcome-path { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 13px; }
+.outcome-path span { padding: 6px 9px; border: 1px solid rgba(198,255,105,.3); border-radius: 7px; color: var(--ink); background: rgba(7,16,13,.44); font: 11px var(--mono); }
+.outcome-path .outcome-arrow { padding: 0; border: 0; color: var(--lime); background: transparent; }
+.run-inspector { margin-top: 14px; border-top: 1px solid rgba(198,255,105,.23); padding-top: 13px; }
+.run-inspector summary { cursor: pointer; color: var(--aqua); font-size: 13px; font-weight: 800; }
+.run-inspector summary::marker { color: var(--lime); }
+.run-receipt-wrap { margin-top: 11px; }
+.run-receipt { max-height: 265px; margin: 0; padding: 13px; overflow: auto; border: 1px solid var(--line-strong); border-radius: 9px; color: #d4e5d7; background: #07100d; font: 12px/1.6 var(--mono); white-space: pre-wrap; }
+.receipt-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 9px; }
+.receipt-tools span { color: var(--quiet); font: 11px var(--mono); }
+.value-strip { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+.value-cell { display: flex; align-items: baseline; gap: 7px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.value-number { color: var(--lime); font: 800 17px var(--mono); }
+.value-label { color: var(--quiet); font-size: 12px; }
+.secondary { margin-top: 72px; padding: 35px 0 55px; border-top: 1px solid var(--line); }
+.secondary-grid { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: 30px; align-items: start; }
+.secondary h2 { max-width: 550px; margin: 8px 0 10px; font-size: clamp(28px,4vw,48px); line-height: 1.02; letter-spacing: -.06em; }
+.secondary p { color: var(--muted); }
+.detail-stack { display: grid; gap: 9px; }
+details.detail { border: 1px solid var(--line); border-radius: 11px; background: var(--surface); }
+details.detail summary { cursor: pointer; padding: 14px 16px; color: var(--ink); font-weight: 800; }
+details.detail[open] summary { border-bottom: 1px solid var(--line); }
+.detail-body { padding: 14px 16px 16px; color: var(--muted); font-size: 14px; }
+.detail-body p { margin: 0 0 10px; }
+.detail-body p:last-child { margin-bottom: 0; }
+.provenance { margin-top: 26px; padding: 18px; border: 1px solid rgba(141,228,192,.28); border-radius: 13px; background: rgba(141,228,192,.04); }
 .provenance-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-.provenance-label { color: var(--green); font: 600 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.provenance-label { color: var(--aqua); font: 700 10px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
 .provenance-status { color: var(--muted); font: 11px var(--mono); }
-.provenance-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
-.provenance-item { min-width: 0; }
-.provenance-item span { display: block; color: var(--quiet); font: 10px var(--mono); letter-spacing: .07em; text-transform: uppercase; }
-.provenance-item strong { display: block; margin-top: 3px; color: var(--text); font: 12px var(--mono); overflow-wrap: anywhere; }
-.provenance-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-.provenance-actions button, .provenance-actions a { border: 1px solid var(--line-bright); border-radius: 7px; padding: 7px 10px; color: var(--muted); background: transparent; font-size: 12px; }
-.provenance-actions button:hover, .provenance-actions a:hover { color: var(--text); border-color: var(--green); }
-.provenance-note { margin: 10px 0 0; color: var(--quiet); font-size: 12px; line-height: 1.5; }
+.provenance-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin-top: 14px; }
+.provenance-item span { display: block; color: var(--quiet); font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.provenance-item strong { display: block; margin-top: 4px; color: var(--ink); font: 12px var(--mono); overflow-wrap: anywhere; }
+.provenance-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.provenance-actions button, .provenance-actions a { min-height: 38px; padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--muted); background: transparent; font-size: 12px; }
+.provenance-actions button:hover, .provenance-actions a:hover { color: var(--ink); border-color: var(--aqua); }
+.provenance-note { margin: 11px 0 0; color: var(--quiet); font-size: 12px; }
 .evidence-output { display: none; margin-top: 11px; }
 .evidence-output.show { display: block; }
-.evidence-output a { color: var(--green); font-weight: 700; }
-.footer { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 25px 0 47px; color: var(--quiet); font: 12px var(--mono); border-top: 1px solid var(--line); }
+.evidence-output a { color: var(--lime); font-weight: 800; }
+.footer { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 25px 0 46px; border-top: 1px solid var(--line); color: var(--quiet); font: 12px var(--mono); }
 .footer a { color: var(--muted); }
-.toast { position: fixed; right: 20px; bottom: 20px; z-index: 30; max-width: 360px; padding: 11px 14px; border-radius: 9px; border: 1px solid var(--line-bright); background: #111923; color: var(--text); box-shadow: 0 12px 42px rgba(0,0,0,.35); font-size: 13px; transform: translateY(20px); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+.toast { position: fixed; right: 20px; bottom: 20px; z-index: 40; max-width: min(420px, calc(100% - 40px)); padding: 12px 15px; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--ink); background: #102019; box-shadow: 0 16px 48px rgba(0,0,0,.4); font-size: 13px; transform: translateY(16px); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
 .toast.show { opacity: 1; transform: translateY(0); }
-.toast.error { border-color: rgba(255, 143, 133, .55); color: #ffd3cf; }
-@media (max-width: 900px) {
-  .hero-grid, .proof-grid { grid-template-columns: 1fr; gap: 30px; }
-  .hero { padding-top: 52px; }
-  .nav-links { display: none; }
-  .mobile-source { display: inline-flex; align-items: center; min-height: 36px; }
-}
-@media (max-width: 720px) {
-  .shell { width: min(100% - 28px, 1180px); }
-  .topbar-inner { min-height: 59px; }
-  .workspace, .compare { grid-template-columns: 1fr; }
-  .proof-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .value-strip { grid-template-columns: repeat(2, 1fr); }
-  .experience-header { display: block; }
-  .experience-header p { margin-top: 10px; }
-  .field-row { grid-template-columns: 1fr; }
-  .flow-card { padding: 17px; }
-  .receipt-head { display: block; }
-  .receipt-status { margin-top: 12px; }
-  .receipt-row { grid-template-columns: 1fr; gap: 3px; }
-  .receipt-row strong { text-align: left; }
-  .support { align-items: flex-start; }
-  .support-actions { width: 100%; }
-  .sponsor-card-wrap { padding: 12px; }
-  .provenance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .proof-phase-detail { min-height: 0; }
-  .outcome-summary { grid-template-columns: 1fr; }
-}
+.toast.error { border-color: rgba(255,142,134,.7); color: #ffd9d4; }
+@media (max-width: 980px) { .hero { grid-template-columns: 1fr; min-height: 0; padding-top: 58px; } .stage-grid { grid-template-columns: 1fr; } .stage-arrow { min-height: 22px; transform: rotate(90deg); } .workspace, .secondary-grid { grid-template-columns: 1fr; } .nav-links { display: none; } .mobile-source { display: inline-flex; align-items: center; min-height: 40px; } }
+@media (max-width: 700px) { .shell { width: min(100% - 28px, 1220px); } .topbar-inner { min-height: 60px; } .brand-note { display: none; } .projector-toggle { padding: 8px 9px; } .hero { padding: 42px 0 36px; } .hero h1 { font-size: clamp(44px, 15vw, 68px); } .hero-lead { font-size: 17px; } .section-heading { display: block; } .section-heading p { margin-top: 12px; } .proof-rail { grid-template-columns: repeat(2,minmax(0,1fr)); } .story-console { padding: 13px; } .story-bar { align-items: flex-start; } .story-controls, .story-controls select, .story-controls .btn { width: 100%; } .field-row { grid-template-columns: 1fr; } .provenance-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .outcome-summary { grid-template-columns: 1fr; } .footer { display: block; } .footer span { display: block; margin-top: 8px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
 </style>
 </head>
 <body>
+<a class="skip-link" href="#try">Skip to the live proof</a>
 <header class="topbar">
   <div class="shell topbar-inner">
-    <a class="brand" href="https://perseus.observer/" aria-label="Perseus home">
-      <span class="brand-mark" aria-hidden="true">⌁</span>
-      <span>Perseus Vault <span style="color:var(--quiet);font-weight:500">/ browser demo</span></span>
-    </a>
-    <nav class="nav-links" aria-label="Primary">
-      <a href="https://perseus.observer/vault/">Why Vault</a>
-      <a href="https://github.com/Perseus-Computing-LLC/perseus-vault">Source</a>
-      <a href="https://github.com/Perseus-Computing-LLC/perseus-vault#55-mcp-tools">What it can do</a>
-    </nav>
+    <a class="brand" href="https://perseus.observer/" aria-label="Perseus home"><span class="brand-mark" aria-hidden="true">⌁</span><span>Perseus Vault <span class="brand-note">/ browser demo</span></span></a>
+    <div class="topbar-right">
+      <nav class="nav-links" aria-label="Primary"><a href="https://perseus.observer/vault/">Why Vault</a><a href="https://github.com/Perseus-Computing-LLC/perseus-vault">Source</a></nav>
+      <button id="projector-toggle" class="projector-toggle" type="button" aria-pressed="false">Presentation mode</button>
+    </div>
     <a class="mobile-source" href="https://github.com/Perseus-Computing-LLC/perseus-vault">Source ↗</a>
   </div>
 </header>
-
 <main>
   <section class="hero shell">
-    <div class="hero-grid">
-      <div>
-        <div class="eyebrow">Memory for the next task</div>
-        <h1>Stop repeating the same <span class="accent">context</span> twice.</h1>
-        <p class="hero-category">An open-source memory layer for AI agents and engineering teams.</p>
-        <p class="hero-lead">Save one decision. In a later task, Vault finds what matters and prepares a short summary an agent or workflow can use.</p>
-        <div class="hero-actions">
-          <a id="hero-demo" class="btn btn-primary" href="#try">Run the 60-second demo ↓</a>
-          <a class="btn" href="https://github.com/Perseus-Computing-LLC/perseus-vault">Read the source ↗</a>
-        </div>
-        <p class="hero-note">This demo uses the real Vault engine. Your entries stay in this browser session; no AI model or production data is involved.</p>
-        <div class="chips" aria-label="Demo properties">
-          <span class="chip">Real Vault engine</span>
-          <span class="chip">Private demo session</span>
-          <span class="chip">Finds by meaning and keywords</span>
-        </div>
+    <div class="hero-copy">
+      <div class="eyebrow">Memory for the next task</div>
+      <h1>The next task starts with the <span class="accent">right past.</span></h1>
+      <p class="hero-category">An open-source memory layer for AI agents and engineering teams.</p>
+      <p class="hero-lead">Save one decision. In a later task, Vault finds what matters and prepares bounded context the next task can use.</p>
+      <div class="hero-actions"><a id="hero-demo" class="btn btn-primary" href="#try">Run the 60-second demo ↓</a><a class="btn btn-secondary" href="https://github.com/Perseus-Computing-LLC/perseus-vault">Read the source ↗</a></div>
+      <p class="hero-boundary"><strong>REAL VAULT ENGINE</strong> · browser-scoped private demo · no AI model · no production data</p>
+    </div>
+    <div id="hero-stage" class="stage" aria-label="Live proof preview">
+      <div class="stage-head"><span>LIVE PROOF / MEMORY LOOP</span><span id="hero-stage-status" class="stage-status" data-state="ready">waiting for a story</span></div>
+      <div class="stage-grid">
+        <article class="stage-pane before"><div class="stage-label">BEFORE · START EMPTY</div><h3>Blank task</h3><p id="hero-before-detail" class="stage-detail">0 relevant memories · empty by design</p><div class="stage-question">“What must I know before changing the billing migration?”</div></article>
+        <div class="stage-arrow" aria-hidden="true">→</div>
+        <article class="stage-pane after"><div class="stage-label">AFTER · USE WHAT FITS</div><h3>Relevant context</h3><p id="hero-after-detail" class="stage-detail">No relevant memories yet</p><div id="hero-summary" class="stage-summary">Run the story to watch the next task get a head start.</div></article>
       </div>
-      <aside class="flow-card" aria-label="What this demo demonstrates">
-        <div class="flow-head">
-          <div class="flow-label">See the memory loop</div>
-          <div class="live-dot">REAL VAULT ENGINE</div>
-        </div>
-        <div class="flow-step">
-          <div class="step-number">01</div>
-          <div><h3>Start with a blank slate</h3><p>A new demo session starts with nothing saved.</p><span class="flow-code">perseus_vault_recall(...)</span></div>
-        </div>
-        <div class="flow-step">
-          <div class="step-number">02</div>
-          <div><h3>Save what matters</h3><p>“Deploys freeze Friday afternoon until rollback is rehearsed.”</p><span class="flow-code">perseus_vault_remember(...)</span></div>
-        </div>
-        <div class="flow-step">
-          <div class="step-number">03</div>
-          <div><h3>Find what matters</h3><p>“What must I know before changing the billing migration?”</p><span class="flow-code">perseus_vault_recall(mode="hybrid")</span></div>
-        </div>
-        <div class="flow-step">
-          <div class="step-number">04</div>
-          <div><h3>Give the next task a head start</h3><p>Copy a short, focused summary before you start work.</p><span class="flow-code">perseus_vault_context → follow</span></div>
-        </div>
-      </aside>
+      <div class="stage-foot"><span>Save → retrieve → prepare context</span><span>Press P for presentation mode</span></div>
+    </div>
+  </section>
+  <div class="shell trust-line" aria-label="Demo boundary"><strong>Open source</strong><span>Real Vault engine</span><span>Private demo session</span><span>No production data</span></div>
+
+  <section id="try" class="demo-shell shell" tabindex="-1">
+    <div class="section-heading"><div><div class="eyebrow">One guided story</div><h2>Watch memory change the next task.</h2></div><p>Start empty, capture three realistic decisions, retrieve only what fits, and leave with a short summary the next task can actually use.</p></div>
+    <div class="story-console">
+      <div class="story-bar"><div class="story-controls"><label for="scenario">Story</label><select id="scenario" aria-label="Choose a demo story"><option value="deploy">Production deploy</option><option value="onboarding">New teammate onboarding</option><option value="incident">Incident response</option></select><button id="run-story" class="btn btn-primary btn-small" type="button">Run the demo</button><button id="reset" class="btn btn-small" type="button">Start over</button></div><div id="story-status" class="story-status" role="status" aria-live="polite" data-state="ready">Ready · private demo session</div></div>
+      <div class="proof-rail" aria-label="How the demo works">
+        <article id="phase-before" class="proof-phase" data-state="ready"><div class="proof-phase-label">01 · START</div><h3>Blank slate</h3><p id="phase-before-detail" class="proof-phase-detail">Nothing saved yet</p></article>
+        <article id="phase-teach" class="proof-phase" data-state="ready"><div class="proof-phase-label">02 · SAVE</div><h3>Save what matters</h3><p id="phase-teach-detail" class="proof-phase-detail">0 saved in this session</p></article>
+        <article id="phase-after" class="proof-phase" data-state="ready"><div class="proof-phase-label">03 · FIND</div><h3>What Vault found</h3><p id="phase-after-detail" class="proof-phase-detail">Ask what you are about to do</p></article>
+        <article id="phase-use" class="proof-phase" data-state="ready"><div class="proof-phase-label">04 · USE</div><h3>Ready-to-use summary</h3><p id="phase-use-detail" class="proof-phase-detail">Your short summary will appear here</p></article>
+      </div>
+      <p class="run-boundary" role="note">Every run starts with a clean, private demo session: START begins empty, SAVE adds decisions, FIND retrieves only what fits, and USE prepares the bounded artifact.</p>
+      <div class="workspace">
+        <section class="panel" aria-labelledby="teach-title">
+          <div class="panel-kicker">Step 1 · save a memory</div><h3 id="teach-title">Save something worth remembering.</h3><p class="panel-intro">The story supplies realistic examples. The calls underneath are real Vault operations, not a screenshot.</p>
+          <label class="field-label" for="memory-text">What should Vault remember?</label><textarea id="memory-text" placeholder="Example: Billing migrations require a rollback rehearsal before production deploy."></textarea>
+          <div class="sample-row" aria-label="Example memories"><button class="sample" type="button" data-sample="deploy">deployment rule</button><button class="sample" type="button" data-sample="onboarding">team rule</button><button class="sample" type="button" data-sample="incident">incident lesson</button></div>
+          <div class="field-row"><div><label class="field-label" for="memory-key">Short label <span style="color:var(--quiet)">(optional)</span></label><input id="memory-key" placeholder="rollback-before-prod"></div><div><label class="field-label" for="memory-category">Type</label><select id="memory-category" aria-label="Memory kind"><option value="decision">Decision</option><option value="convention">Team rule</option><option value="lesson">Lesson</option><option value="preference">Preference</option><option value="fact">Fact</option></select></div></div>
+          <div class="panel-actions"><button id="remember" class="btn btn-secondary btn-small" type="button">Save memory</button><span id="remember-status" class="story-status">Stays in this demo session</span></div>
+          <div class="capture-log" aria-label="Saved memories in this session"><div class="operation-head"><span class="operation-title">Saved in this session</span><span id="capture-count" class="operation-time">0</span></div><div id="capture-list" class="capture-list" role="list" aria-live="polite"></div></div>
+        </section>
+        <section class="panel use" aria-labelledby="recall-title">
+          <div class="panel-kicker green">Step 2 · use it</div><h3 id="recall-title">Start with the right information.</h3><p class="panel-intro">The payoff is not “search succeeded.” It is the relevant past arriving before the next task repeats the work.</p>
+          <label class="field-label" for="query">What are you about to do?</label><input id="query" placeholder="What should I know before deploying the billing migration?">
+          <div class="panel-actions"><div class="mode-tabs" role="tablist" aria-label="How to find a memory"><button class="mode-tab" type="button" role="tab" data-mode="hybrid" aria-selected="true">best match</button><button class="mode-tab" type="button" role="tab" data-mode="dense" aria-selected="false">by meaning</button><button class="mode-tab" type="button" role="tab" data-mode="fts5" aria-selected="false">by keyword</button></div><button id="recall" class="btn btn-primary btn-small" type="button">Find relevant memories</button></div>
+          <div class="operation"><div class="operation-head"><span class="operation-title">Memories that fit</span><span id="recall-time" class="operation-time"></span></div><div id="recall-output" class="output empty" role="status" aria-live="polite">Run the demo to see the right memory appear here.</div></div>
+          <div class="operation"><div class="operation-head"><span class="operation-title">Ready-to-use summary</span><span id="context-time" class="operation-time"></span></div><div id="context-output" class="output empty" role="status" aria-live="polite">Run the demo to see a short summary you can use to start the task.</div><div class="context-tools"><span id="context-meta" class="context-meta">Nothing ready yet.</span><span id="context-copy-status" class="context-copy-status" role="status" aria-live="polite"></span><button id="copy-context" class="btn btn-small" type="button" disabled>Copy summary</button></div><div class="panel-actions"><button id="prepare" class="btn btn-small" type="button">Prepare this summary</button></div></div>
+        </section>
+      </div>
+      <section id="outcome-summary" class="outcome-summary" role="status" aria-live="polite" aria-labelledby="outcome-title" hidden><div class="outcome-mark" aria-hidden="true">✓</div><div><div class="outcome-kicker">The observable change</div><h3 id="outcome-title">The next task gets a head start.</h3><p id="outcome-detail">Before, this task had nothing saved. Now it starts with only the memories that fit the question.</p><div class="outcome-path" aria-label="Observed demo result"><span id="outcome-before">0 found</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-captured">0 saved</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-selected">0 used</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-context">0 chars ready</span></div><details id="run-inspector" class="run-inspector" hidden><summary>Inspect this run</summary><div class="run-receipt-wrap"><pre id="run-receipt" class="run-receipt"></pre><div class="receipt-tools"><button id="copy-receipt" class="btn btn-small" type="button">Copy observation</button><span id="run-receipt-meta">Not ready</span><span id="receipt-copy-status" role="status" aria-live="polite"></span></div></div></details></div></section>
+      <div class="value-strip" aria-label="Demo activity"><div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">memories saved</div></div><div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">memories found</div></div><div class="value-cell"><div id="stat-context" class="value-number">0</div><div class="value-label">summaries prepared</div></div><div class="value-cell"><div id="stat-followed" class="value-number">0</div><div class="value-label">times marked useful</div></div></div>
     </div>
   </section>
 
-  <div class="shell trust-strip" aria-label="Product trust signals"><strong>Open source</strong><span>Real Vault engine</span><span>Private demo session</span><span>No production data</span></div>
-  <div class="shell sandbox"><strong>About this demo.</strong> This is a disposable demo space. Your entries stay in this browser session, are limited to keep the demo safe, and never mix with production data. Starting over clears this demo space; install Vault locally for your own data.</div>
-
-  <section id="try" class="experience shell" tabindex="-1">
-    <div class="experience-header">
-      <div>
-        <div class="eyebrow">Try it in under a minute</div>
-        <h2>See the difference.</h2>
-      </div>
-      <p>Run the example or try a decision from your own project. You will see Vault save it, find it later, and prepare a short summary for the next task.</p>
-    </div>
-
-    <div class="story-bar">
-      <div class="story-controls">
-        <label for="scenario">Example</label>
-        <select id="scenario" aria-label="Choose a demo story">
-          <option value="deploy">Production deploy</option>
-          <option value="onboarding">New teammate onboarding</option>
-          <option value="incident">Incident response</option>
-        </select>
-        <button id="run-story" class="btn btn-primary btn-small" type="button">Run the demo</button>
-        <button id="reset" class="btn btn-small" type="button">Start over</button>
-      </div>
-      <div id="story-status" class="story-status" role="status" aria-live="polite" data-state="ready">Ready · private demo session</div>
-    </div>
-
-    <div class="proof-rail" aria-label="How the demo works">
-      <article id="phase-before" class="proof-phase" data-state="ready">
-        <div class="proof-phase-label">01 · START</div>
-        <h3>Blank slate</h3>
-        <p id="phase-before-detail" class="proof-phase-detail">Nothing saved yet</p>
-      </article>
-      <article id="phase-teach" class="proof-phase" data-state="ready">
-        <div class="proof-phase-label">02 · SAVE</div>
-        <h3>Save what matters</h3>
-        <p id="phase-teach-detail" class="proof-phase-detail">0 saved in this session</p>
-      </article>
-      <article id="phase-after" class="proof-phase" data-state="ready">
-        <div class="proof-phase-label">03 · FIND</div>
-        <h3>What Vault found</h3>
-        <p id="phase-after-detail" class="proof-phase-detail">Ask what you are about to do</p>
-      </article>
-      <article id="phase-use" class="proof-phase" data-state="ready">
-        <div class="proof-phase-label">04 · USE</div>
-        <h3>Ready-to-use summary</h3>
-        <p id="phase-use-detail" class="proof-phase-detail">Your short summary will appear here</p>
-      </article>
-    </div>
-    <p class="run-boundary" role="note">Every run starts with a clean, private demo session so you can see the difference: START begins empty, SAVE adds decisions, and FIND retrieves only what fits the question. Starting over clears this demo session; it does not imply that an earlier session was saved.</p>
-
-    <div class="workspace">
-      <section class="panel" aria-labelledby="teach-title">
-        <div class="panel-kicker">Step 1 · save a memory</div>
-        <h3 id="teach-title">Save something worth remembering.</h3>
-        <p class="panel-intro">Save a decision, team rule, or lesson so a later task can find it.</p>
-        <label class="field-label" for="memory-text">What should Vault remember?</label>
-        <textarea id="memory-text" placeholder="Example: Billing migrations require a rollback rehearsal before production deploy."></textarea>
-        <div class="sample-row" aria-label="Example memories">
-          <button class="sample" type="button" data-sample="deploy">deployment rule</button>
-          <button class="sample" type="button" data-sample="onboarding">team rule</button>
-          <button class="sample" type="button" data-sample="incident">incident lesson</button>
-        </div>
-        <div class="field-row">
-          <div>
-            <label class="field-label" for="memory-key">Short label <span style="color:var(--quiet)">(optional)</span></label>
-            <input id="memory-key" placeholder="rollback-before-prod">
-          </div>
-          <div>
-            <label class="field-label" for="memory-category">Type</label>
-            <select id="memory-category" aria-label="Memory kind">
-              <option value="decision">Decision</option>
-              <option value="convention">Team rule</option>
-              <option value="lesson">Lesson</option>
-              <option value="preference">Preference</option>
-              <option value="fact">Fact</option>
-            </select>
-          </div>
-        </div>
-        <div class="panel-actions">
-          <button id="remember" class="btn btn-violet btn-small" type="button">Save memory</button>
-          <span id="remember-status" class="story-status">Stays in this demo session</span>
-        </div>
-        <div class="capture-log" aria-label="Saved memories in this session">
-          <div class="operation-head"><span class="operation-title">Saved in this session</span><span id="capture-count" class="operation-time">0</span></div>
-          <div id="capture-list" class="capture-list" role="list" aria-live="polite"></div>
-        </div>
-      </section>
-
-      <section class="panel" aria-labelledby="recall-title">
-        <div class="panel-kicker green">Step 2 · use it</div>
-        <h3 id="recall-title">Start with the right information.</h3>
-        <p class="panel-intro">Ask what you need to know for a later task. Vault finds the memories that fit instead of making you search for them again.</p>
-        <label class="field-label" for="query">What are you about to do?</label>
-        <input id="query" placeholder="What should I know before deploying the billing migration?">
-        <div class="panel-actions">
-          <div class="mode-tabs" role="tablist" aria-label="How to find a memory">
-            <button class="mode-tab" type="button" role="tab" data-mode="hybrid" aria-selected="true">best match</button>
-            <button class="mode-tab" type="button" role="tab" data-mode="dense" aria-selected="false">by meaning</button>
-            <button class="mode-tab" type="button" role="tab" data-mode="fts5" aria-selected="false">by keyword</button>
-          </div>
-          <button id="recall" class="btn btn-primary btn-small" type="button">Find relevant memories</button>
-        </div>
-        <div class="operation">
-          <div class="operation-head"><span class="operation-title">Memories that fit</span><span id="recall-time" class="operation-time"></span></div>
-          <div id="recall-output" class="output empty" role="status" aria-live="polite">Run the demo to see the right memory appear here.</div>
-        </div>
-        <div class="operation">
-          <div class="operation-head"><span class="operation-title">Ready-to-use summary</span><span id="context-time" class="operation-time"></span></div>
-          <div id="context-output" class="output empty" role="status" aria-live="polite">Run the demo to see a short summary you can use to start the task.</div>
-          <div class="context-tools">
-            <span id="context-meta" class="context-meta">Nothing ready yet.</span>
-            <span id="context-copy-status" class="context-copy-status" role="status" aria-live="polite"></span>
-            <button id="copy-context" class="btn btn-small" type="button" disabled>Copy summary</button>
-          </div>
-          <div class="panel-actions"><button id="prepare" class="btn btn-small" type="button">Prepare this summary</button></div>
-        </div>
-      </section>
-    </div>
-
-    <section id="outcome-summary" class="outcome-summary" role="status" aria-live="polite" aria-labelledby="outcome-title" hidden>
-      <div class="outcome-mark" aria-hidden="true">✓</div>
-      <div>
-        <div class="outcome-kicker">What changed</div>
-        <h3 id="outcome-title">The next task gets a head start.</h3>
-        <p id="outcome-detail">Before, this task had nothing saved. Now it starts with only the memories that fit the question.</p>
-        <div class="outcome-path" aria-label="Observed demo result">
-          <span id="outcome-before">0 found</span>
-          <span class="outcome-arrow" aria-hidden="true">→</span>
-          <span id="outcome-captured">0 saved</span>
-          <span class="outcome-arrow" aria-hidden="true">→</span>
-          <span id="outcome-selected">0 used</span>
-          <span class="outcome-arrow" aria-hidden="true">→</span>
-          <span id="outcome-context">0 chars ready</span>
-        </div>
-      </div>
-    </section>
-
-    <div class="value-strip" aria-label="Demo activity">
-      <div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">memories saved</div></div>
-      <div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">memories found</div></div>
-      <div class="value-cell"><div id="stat-context" class="value-number">0</div><div class="value-label">summaries prepared</div></div>
-      <div class="value-cell"><div id="stat-followed" class="value-number">0</div><div class="value-label">times marked useful</div></div>
-    </div>
-
-    <div class="compare">
-      <article class="compare-card">
-        <h3>Without durable memory</h3>
-        <p>Every new task starts from scratch.</p>
-        <ul><li>re-read old threads and documents</li><li>ask the same “why?” again</li><li>risk missing a team rule or decision</li></ul>
-      </article>
-      <article class="compare-card good">
-        <h3>With Vault</h3>
-        <p>The next task starts with the relevant past.</p>
-        <ul><li>find the decision when it matters</li><li>prepare a short, inspectable summary</li><li>mark the guidance useful</li></ul>
-      </article>
-    </div>
-  </section>
-
-  <section class="proof shell">
-    <div class="proof-grid">
-      <div class="proof-copy">
-        <div class="eyebrow">No made-up numbers</div>
-        <h2>How teams can measure the value.</h2>
-        <p>This page demonstrates the memory loop—not a promise about customer savings. It does not call an AI model or pretend to know what a dollar is worth. A real deployment can measure that separately.</p>
-        <p class="disclaimer">In a real deployment, Perseus Ledger can record what a provider charged and the prompt Vault replaced. That makes the comparison reproducible. Smaller context without a bill is reported separately as an estimate, with the coverage and counting method shown.</p>
-      </div>
-      <div class="receipt" aria-label="Example value report">
-        <div class="receipt-head">
-          <div>
-            <div class="receipt-kicker">Example from a real deployment</div>
-            <div class="receipt-title">Not generated by this demo</div>
-          </div>
-          <span class="receipt-status illustrative">ONLY IN A REAL DEPLOYMENT</span>
-        </div>
-        <div class="receipt-rows" role="list">
-          <div class="receipt-row" role="listitem"><span>what the provider charged</span><strong>recorded</strong></div>
-          <div class="receipt-row" role="listitem"><span>prompt that would have been sent</span><strong>saved with the record</strong></div>
-          <div class="receipt-row" role="listitem"><span>actual cost</span><strong>priced from usage</strong></div>
-          <div class="receipt-row" role="listitem"><span>baseline cost</span><strong>priced from baseline</strong></div>
-          <div class="receipt-row" role="listitem"><span>savings</span><strong>baseline − actual</strong></div>
-          <div class="receipt-row" role="listitem"><span>coverage and estimate status</span><strong>shown, never hidden</strong></div>
-          <div class="receipt-row" role="listitem"><span>record integrity</span><strong>independently checked</strong></div>
-        </div>
-        <p class="receipt-links">Read <a href="https://github.com/Perseus-Computing-LLC/perseus/blob/main/WIRING.md">how savings are measured ↗</a> or <a href="https://github.com/Perseus-Computing-LLC/ledger">the Ledger source ↗</a>.</p>
-      </div>
-    </div>
-    <div class="support">
-      <p><strong>Was this useful?</strong><br><span style="color:var(--muted)">The software is free and open source. Support is optional, never required for access.</span></p>
-      <div class="support-actions">
-        <a href="https://github.com/sponsors/tcconnally">Support the work ↗</a>
-        <iframe class="sponsor-button" src="https://github.com/sponsors/tcconnally/button" title="Sponsor tcconnally" height="32" width="114"></iframe>
-      </div>
-    </div>
-    <div class="provenance" aria-label="About this demo">
-      <div class="provenance-head">
-        <span class="provenance-label">About this demo</span>
-        <span id="provenance-status" class="provenance-status">live · private demo</span>
-      </div>
-      <div class="provenance-grid">
-        <div class="provenance-item"><span>where it runs</span><strong id="provenance-runtime">Hosted demo</strong></div>
-        <div class="provenance-item"><span>what powers it</span><strong id="provenance-vault">Real Vault engine</strong></div>
-        <div class="provenance-item"><span>your data</span><strong id="provenance-source">Private to this browser</strong></div>
-        <div class="provenance-item"><span>extra proof</span><strong id="provenance-ledger">Optional</strong></div>
-      </div>
-      <div class="provenance-actions">
-        <button id="inspect-evidence" type="button">Check supporting evidence</button>
-        <a href="https://github.com/Perseus-Computing-LLC/perseus-vault-demo">View source on GitHub ↗</a>
-      </div>
-      <p class="provenance-note">You are using the real Vault engine in a private demo session. Nothing here touches production data, and the demo does not call an AI model.</p>
-      <div id="evidence-output" class="evidence-output output" role="status" aria-live="polite"></div>
-    </div>
-    <details class="sponsor-card-wrap">
-      <summary class="sponsor-card-summary">
-        <span class="sponsor-card-label">Support the project on GitHub</span>
-        <span class="sponsor-card-action">See support options</span>
-      </summary>
-      <div class="sponsor-card-body">
-        <iframe class="sponsor-card" src="https://github.com/sponsors/tcconnally/card" title="Sponsor tcconnally" height="225" width="600"></iframe>
-        <p class="sponsor-fallback">Prefer a full page? <a href="https://github.com/sponsors/tcconnally">Open GitHub Sponsors ↗</a></p>
-      </div>
-    </details>
+  <section class="secondary shell">
+    <div class="secondary-grid"><div><div class="eyebrow">Trust without theater</div><h2>The demo shows the memory loop — not a made-up business result.</h2><p>This page uses the real Vault engine with browser-supplied illustrative inputs. It does not call an AI model, use production data, or claim provider savings.</p></div><div class="detail-stack"><details class="detail"><summary>What is real here?</summary><div class="detail-body"><p><strong>Real:</strong> Vault remember, recall, context, and feedback responses from the hosted demo service.</p><p><strong>Seeded:</strong> the example query and three memory texts supplied by this browser story.</p><p><strong>Not demonstrated:</strong> agent action, customer outcome, provider-billed savings, or a production audit receipt.</p></div></details><details class="detail"><summary>How teams can measure value later</summary><div class="detail-body"><p>This page demonstrates the memory loop—not a promise about customer savings.</p><p><strong>ONLY IN A REAL DEPLOYMENT</strong> · Not generated by this demo.</p><p>In a real deployment, Perseus Ledger can record provider usage and the prompt Vault replaced. That comparison belongs to a separate evidence path with its coverage and method shown.</p><p><a href="https://github.com/Perseus-Computing-LLC/perseus/blob/main/WIRING.md">Read the measurement method ↗</a></p></div></details></div></div>
+    <div class="provenance" aria-label="About this demo"><div class="provenance-head"><span class="provenance-label">About this demo</span><span id="provenance-status" class="provenance-status">live · private demo</span></div><div class="provenance-grid"><div class="provenance-item"><span>where it runs</span><strong id="provenance-runtime">Hosted demo</strong></div><div class="provenance-item"><span>what powers it</span><strong id="provenance-vault">Real Vault engine</strong></div><div class="provenance-item"><span>your data</span><strong id="provenance-source">Private to this browser</strong></div><div class="provenance-item"><span>extra proof</span><strong id="provenance-ledger">Optional</strong></div></div><div class="provenance-actions"><button id="inspect-evidence" type="button">Check supporting evidence</button><a href="https://github.com/Perseus-Computing-LLC/perseus-vault-demo">View source on GitHub ↗</a></div><p class="provenance-note">You are using the real Vault engine in a private demo session. Nothing here touches production data, and the demo does not call an AI model.</p><div id="evidence-output" class="evidence-output output" role="status" aria-live="polite"></div></div>
   </section>
 </main>
-
-<footer class="footer shell">
-  <span>Perseus Computing · MIT · private demo session</span>
-  <span><a href="https://perseus.observer/vault/">Vault</a> · <a href="https://github.com/Perseus-Computing-LLC/perseus-vault">GitHub</a> · <a href="https://github.com/sponsors/tcconnally">Support</a></span>
-</footer>
+<footer class="footer shell"><span>Perseus Computing · MIT · private demo session</span><span><a href="https://perseus.observer/vault/">Vault</a> · <a href="https://github.com/Perseus-Computing-LLC/perseus-vault">GitHub</a> · <a href="https://github.com/sponsors/tcconnally">Support</a></span></footer>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
 <script>
+
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -583,6 +334,8 @@ select { min-width: 0; max-width: 100%; }
   let mode = "hybrid";
   let lastHits = [];
   let lastContextText = "";
+  let lastContextMemoryCount = 0;
+  let lastReceiptText = "";
   let activePhase = "";
   let storyRunning = false;
   let storyTargetCount = 0;
@@ -675,6 +428,7 @@ select { min-width: 0; max-width: 100%; }
     phase.dataset.state = state;
     detailEl.textContent = detail;
     if (state === "active") activePhase = id;
+    setHeroStage();
   }
 
   function resetPhases() {
@@ -758,11 +512,96 @@ select { min-width: 0; max-width: 100%; }
   function renderOutcome(capturedCount, selectedCount) {
     const outcome = $("outcome-summary");
     if (!outcome) return;
-    $("outcome-detail").textContent = `Before, this task had nothing saved. Vault saved ${capturedCount} decisions, used ${selectedCount} that fit the question, and prepared a short ${lastContextText.length.toLocaleString()}-character summary.`;
+    $("outcome-detail").textContent = `Before, this task had nothing saved. Vault saved ${capturedCount} decisions, used ${selectedCount} that fit the question, and prepared a short ${lastContextText.length.toLocaleString()}-character summary containing ${lastContextMemoryCount} saved memories.`;
     $("outcome-captured").textContent = `${capturedCount} saved`;
     $("outcome-selected").textContent = `${selectedCount} used`;
     $("outcome-context").textContent = `${lastContextText.length.toLocaleString()} chars ready`;
+    renderRunReceipt(capturedCount, selectedCount);
     outcome.hidden = false;
+  }
+
+  function setHeroStage() {
+    const before = $("hero-before-detail");
+    const after = $("hero-after-detail");
+    const summary = $("hero-summary");
+    const status = $("hero-stage-status");
+    if (!before || !after || !summary || !status) return;
+    before.textContent = "0 relevant memories · empty by design";
+    if (lastContextText && lastContextMemoryCount > 0) {
+      status.textContent = "ready for the next task";
+      status.dataset.state = "success";
+      after.textContent = `${lastContextMemoryCount} relevant memories selected`;
+      summary.textContent = `${lastContextText.length.toLocaleString()} characters prepared · bounded and selectable`;
+    } else if (lastHits.length) {
+      status.textContent = "relevant context found";
+      status.dataset.state = "active";
+      after.textContent = `${lastHits.length} memories fit this task`;
+      summary.textContent = "Prepare the bounded context block to finish the story.";
+    } else {
+      status.textContent = storyRunning ? "story in progress" : "waiting for a story";
+      status.dataset.state = storyRunning ? "active" : "ready";
+      after.textContent = "No relevant memories yet";
+      summary.textContent = "Run the story to watch the next task get a head start.";
+    }
+  }
+
+  function renderRunReceipt(capturedCount, selectedCount) {
+    const inspector = $("run-inspector");
+    const receipt = $("run-receipt");
+    if (!inspector || !receipt) return;
+    const selectedKeys = new Set(lastHits.map(memoryIdentity));
+    const omitted = capturedMemories.filter((memory) => !selectedKeys.has(memory.key));
+    lastReceiptText = [
+      "PERSEUS VAULT · DEMO OBSERVATION",
+      "Not an audit receipt. Browser-scoped conference demo run.",
+      "",
+      "BEFORE  0 relevant memories · fresh scope",
+      `CAPTURE ${capturedCount} illustrative memories supplied by the browser story`,
+      `AFTER   ${selectedCount} selected for: ${$("query").value.trim()}`,
+      `LEFT OUT ${omitted.length ? omitted.map((memory) => memory.key).join(", ") : "none"}`,
+      `USE     ${lastContextMemoryCount} memories included · ${lastContextText.length} characters / 2,400 cap`,
+      "",
+      "REAL PATH  Vault remember → recall → context completed",
+      "BOUNDARY   no LLM · no production data · no provider-billed result"
+    ].join("\n");
+    receipt.textContent = lastReceiptText;
+    $("run-receipt-meta").textContent = `${lastContextText.length.toLocaleString()} characters · ${lastContextMemoryCount} memories included`;
+    inspector.hidden = false;
+  }
+
+  async function copyReceipt() {
+    if (!lastReceiptText) return;
+    const button = $("copy-receipt");
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(lastReceiptText);
+      } else {
+        const area = document.createElement("textarea");
+        try {
+          area.value = lastReceiptText;
+          area.setAttribute("readonly", "");
+          area.style.position = "fixed";
+          area.style.opacity = "0";
+          document.body.appendChild(area);
+          area.select();
+          if (!document.execCommand("copy")) throw new Error("clipboard unavailable");
+        } finally { area.remove(); }
+      }
+      $("receipt-copy-status").textContent = "copied";
+      button.textContent = "Copied ✓";
+      window.setTimeout(() => { button.textContent = "Copy observation"; }, 1800);
+    } catch (_) {
+      $("receipt-copy-status").textContent = "Copy unavailable — select the observation manually.";
+    }
+  }
+
+  function setProjectorMode(enabled) {
+    document.body.classList.toggle("projector", enabled);
+    const button = $("projector-toggle");
+    if (!button) return;
+    button.setAttribute("aria-pressed", enabled ? "true" : "false");
+    button.textContent = enabled ? "Exit presentation mode" : "Presentation mode";
+    localStorage.setItem("perseus-vault-demo-projector", enabled ? "on" : "off");
   }
 
   function resetRunState() {
@@ -770,6 +609,8 @@ select { min-width: 0; max-width: 100%; }
     localStorage.setItem(sessionKey, session);
     lastHits = [];
     lastContextText = "";
+    lastContextMemoryCount = 0;
+    lastReceiptText = "";
     storyTargetCount = 0;
     capturedMemories = [];
     stats = { stored: 0, hits: 0, contexts: 0, followed: 0 };
@@ -785,6 +626,9 @@ select { min-width: 0; max-width: 100%; }
     $("context-copy-status").textContent = "";
     $("copy-context").disabled = true;
     setStatus("remember-status", "Stays in this demo session");
+    const inspector = $("run-inspector");
+    if (inspector) inspector.hidden = true;
+    setHeroStage();
   }
 
   function setOutput(id, content, empty, success = false) {
@@ -803,6 +647,11 @@ select { min-width: 0; max-width: 100%; }
   function itemsFrom(payload) {
     const data = payload && payload.data;
     return data && (data.items || data.results || data.entities || data.hits) || [];
+  }
+
+  function contextMemoryCount(payload) {
+    const value = payload && payload.data && payload.data.entities_injected;
+    return Number.isInteger(value) && value >= 0 ? value : null;
   }
 
   function itemText(item) {
@@ -930,6 +779,7 @@ select { min-width: 0; max-width: 100%; }
       const result = await post("/api/recall", { query, mode });
       const items = itemsFrom(result);
       lastHits = items;
+      setHeroStage();
       stats.hits = items.length;
       saveStats();
       const modeLabel = mode === "dense" ? "by meaning" : mode === "fts5" ? "by keyword" : "best match";
@@ -964,25 +814,37 @@ select { min-width: 0; max-width: 100%; }
     }
     const button = $("prepare");
     button.disabled = true; button.textContent = "Preparing…";
+    lastContextText = "";
+    lastContextMemoryCount = 0;
+    lastReceiptText = "";
+    $("copy-context").disabled = true;
+    $("context-copy-status").textContent = "";
+    $("context-meta").textContent = "No usable summary yet.";
+    $("context-time").textContent = "";
     setOutput("context-output", "Preparing a short summary…", false);
     try {
       const result = await post("/api/context", { query });
       const data = result.data;
+      const memoryCount = contextMemoryCount(result);
+      if (memoryCount === null) throw new Error("Vault did not report how many saved memories reached this summary.");
+      if (memoryCount < 1) throw new Error("No saved memories were included in this summary. Find a relevant memory before preparing it.");
       const candidate = (data && (data.context_markdown || data.markdown || data.text || data.context)) || result.text || (data && JSON.stringify(data, null, 2)) || "No context was prepared.";
       const text = typeof candidate === "string" ? candidate : JSON.stringify(candidate) || "";
       if (!text.trim() || text === "No context was prepared.") throw new Error("Vault returned no usable summary for this task.");
       if (text.length > 2400) throw new Error("The summary is longer than the public 2,400-character limit.");
       lastContextText = text;
+      lastContextMemoryCount = memoryCount;
+      setHeroStage();
       stats.contexts += 1;
       saveStats();
       $("context-time").textContent = "ready for this task";
       const pre = document.createElement("pre");
       pre.textContent = text;
       setOutput("context-output", pre, false, true);
-      $("context-meta").textContent = `${text.length.toLocaleString()} characters · limit 2,400`;
+      $("context-meta").textContent = `${text.length.toLocaleString()} characters · limit 2,400 · ${memoryCount} memories included`;
       $("context-copy-status").textContent = "";
       $("copy-context").disabled = false;
-      if (!storyRunning) setPhase("use", "complete", `summary ready · ${lastHits.length} memories included`);
+      if (!storyRunning) setPhase("use", "complete", `summary ready · ${memoryCount} memories included`);
       toast("Summary ready — use it to start the task.");
       return result;
     } catch (error) {
@@ -1075,7 +937,8 @@ select { min-width: 0; max-width: 100%; }
       setStoryState("Preparing a short summary…", "running");
       const contextResult = await prepareContext(true);
       if (!contextResult || !lastContextText) throw new Error("No usable summary was returned.");
-      setPhase("use", "complete", `summary ready · ${afterHits.length} memories included`);
+      if (lastContextMemoryCount < 1) throw new Error("No saved memories reached the usable summary.");
+      setPhase("use", "complete", `summary ready · ${lastContextMemoryCount} memories included`);
       renderOutcome(capturedMemories.length, afterHits.length);
 
       setStoryState("Complete · start → save → find → use", "success");
@@ -1213,8 +1076,21 @@ select { min-width: 0; max-width: 100%; }
     }
   }
   $("inspect-evidence").addEventListener("click", inspectEvidence);
+  $("copy-receipt").addEventListener("click", () => { copyReceipt().catch(() => {}); });
+  const projectorButton = $("projector-toggle");
+  if (projectorButton) {
+    setProjectorMode(localStorage.getItem("perseus-vault-demo-projector") === "on");
+    projectorButton.addEventListener("click", () => setProjectorMode(!document.body.classList.contains("projector")));
+  }
+  document.addEventListener("keydown", (event) => {
+    if ((event.key === "p" || event.key === "P") && !event.metaKey && !event.ctrlKey && !event.altKey && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+      setProjectorMode(!document.body.classList.contains("projector"));
+    }
+  });
+  setHeroStage();
   loadProvenance();
 })();
+
 </script>
 </body>
 </html>

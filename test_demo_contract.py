@@ -140,6 +140,41 @@ class DemoContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             app.public_context_text({"data": {"context_markdown": "x" * 2_401}})
 
+    def test_conference_surface_prioritizes_the_observable_outcome(self) -> None:
+        for marker in (
+            'id="hero-stage"',
+            'id="projector-toggle"',
+            'id="run-inspector"',
+            'id="run-receipt"',
+            'id="copy-receipt"',
+            "Presentation mode",
+            "DEMO OBSERVATION",
+        ):
+            self.assertIn(marker, self.html)
+        self.assertIn("function renderRunReceipt", self.html)
+        self.assertIn("function setProjectorMode", self.html)
+        self.assertIn("copyReceipt", self.html)
+        self.assertIn('before.textContent = "0 relevant memories · empty by design";', self.html)
+        self.assertNotIn("memories now in this scope", self.html)
+
+    def test_context_success_requires_real_memory_inclusion(self) -> None:
+        self.assertIn("function contextMemoryCount", self.html)
+        self.assertIn("if (memoryCount < 1)", self.html)
+        self.assertIn("lastContextMemoryCount", self.html)
+        self.assertIn("No saved memories were included", self.html)
+        self.assertIn("memories included", self.html)
+        context_block = re.search(
+            r"async function prepareContext\([^)]*\) \{(?P<body>.*?)\n  \}\n\n  async function copyContext",
+            self.html,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(context_block)
+        if context_block is None:
+            self.fail("expected prepareContext function block")
+        body = context_block.group("body")
+        self.assertLess(body.index("if (memoryCount < 1)"), body.index("lastContextText = text"))
+        self.assertLess(body.index("if (memoryCount < 1)"), body.index("stats.contexts += 1"))
+
     def test_context_browser_path_rejects_an_oversized_artifact(self) -> None:
         self.assertIn("if (text.length > 2400)", self.html)
         self.assertIn("summary is longer than the public 2,400-character limit", self.html)
