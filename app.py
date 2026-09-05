@@ -38,6 +38,23 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MAX_BODY = 16_384
 MAX_CONTEXT_CHARS = 2_400
 
+# The guided conference story uses a deliberately bounded, whitelisted fixture
+# catalog. Its writes go through Vault's explicit operator seed path because
+# public agent-facing MCP writes correctly remain pending until admission
+# evidence exists. Recall/context still use the real Vault MCP service.
+DEMO_FIXTURE_CATALOG: dict[tuple[str, str], str] = {
+    ("decision", "rollback-rehearsal"): "Billing migrations require a rollback rehearsal on staging before production deploy.",
+    ("convention", "deployment-freeze"): "Production deploys are frozen Friday afternoon unless an emergency mitigation is approved.",
+    ("fact", "replication-mode"): "The billing service uses logical replication; schema changes must be backward compatible.",
+    ("convention", "api-tests"): "Every API change needs a contract test and a migration note before review.",
+    ("decision", "review-owners"): "The payments team owns review for changes under src/billing and src/ledger.",
+    ("preference", "small-prs"): "Keep changes small enough that an on-call engineer can review them in one sitting.",
+    ("lesson", "incident-first-check"): "Check the provider webhook queue before restarting workers; a restart can hide the original failure.",
+    ("convention", "incident-channel"): "Billing incidents use #billing-ops and the incident commander records the decision in the ledger.",
+    ("decision", "rollback-threshold"): "Roll back after five minutes of increasing payment failures unless an approved mitigation is already active.",
+}
+DEMO_FIXTURE_MODE = "bounded_trusted_cli_seed"
+
 # Keep the public wrapper's response surface deliberately narrow. The inline
 # demo needs its own script/style rules and the GitHub Sponsor iframe, but no
 # other origins or browser capabilities should be enabled.
@@ -71,6 +88,100 @@ def workspace_for(session: Any) -> str:
     """Turn a browser-provided session id into an opaque Vault scope."""
     raw = str(session or "anon")[:128].encode("utf-8", "replace")
     return hashlib.sha256(b"perseus-vault-demo:" + raw).hexdigest()[:32]
+
+
+def _last_json_line(output: str) -> dict[str, Any] | None:
+    try:
+        value = json.loads(output.strip())
+    except json.JSONDecodeError:
+        value = None
+    if isinstance(value, dict):
+        return value
+    for line in reversed(output.splitlines()):
+        try:
+            value = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, dict):
+            return value
+    return None
+
+
+def vault_seed_fixture(args: dict[str, Any]) -> dict[str, Any]:
+    """Seed one fixed conference fixture through Vault's trusted CLI path."""
+    category = clean_category(args.get("category"))
+    key = str(args.get("key", "")).strip()[:80]
+    text = str(args.get("text", "")).strip()[:1_200]
+    workspace = str(args.get("workspace_hash", "")).strip()
+    expected = DEMO_FIXTURE_CATALOG.get((category, key))
+    if not workspace or expected is None or text != expected:
+        return {"error": "This story accepts only its labeled, bounded demo fixtures."}
+
+    document = {
+        "content": text,
+        "summary": text[:240],
+        "origin": {
+            "capture_method": "bounded_demo_fixture",
+            "memory_kind": "asserted",
+            "source_system": "perseus-vault-demo",
+            "observed_at_unix_ms": int(time.time() * 1000),
+        },
+        "demo_fixture": {
+            "mode": DEMO_FIXTURE_MODE,
+            "label": "illustrative conference fixture; not an authoritative capture",
+        },
+    }
+    command = [
+        PERSEUS_VAULT,
+        "write",
+        "--db",
+        DB,
+        "--category",
+        category,
+        "--key",
+        key,
+        "--body",
+        json.dumps(document, separators=(",", ":"), sort_keys=True),
+        "--tags",
+        "public-demo,seeded-fixture",
+        "--entity-type",
+        clean_type(args.get("type")),
+        "--importance",
+        "0.7",
+        "--workspace-hash",
+        workspace,
+        "--agent-id",
+        "public-demo",
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=25,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return {"error": "Perseus Vault fixture seeding is unavailable."}
+    if completed.returncode != 0:
+        return {"error": "Perseus Vault fixture seeding failed."}
+    result = _last_json_line(completed.stdout)
+    if not result or result.get("ok") is not True:
+        return {"error": "Perseus Vault fixture seeding returned no durable result."}
+    return {
+        "ok": True,
+        "data": {
+            "action": result.get("action", "created"),
+            "id": result.get("id", ""),
+            "category": category,
+            "key": key,
+            "serveable": True,
+            "fixture_mode": DEMO_FIXTURE_MODE,
+            "fixture_label": "illustrative conference fixture; not an authoritative capture",
+        },
+    }
 
 
 def vault_call(tool: str, args: dict[str, Any], timeout: float = 25) -> dict[str, Any]:
@@ -323,6 +434,11 @@ def public_provenance() -> dict[str, Any]:
             "available": bool(LEDGER_URL and LEDGER_ORG and LEDGER_API_KEY),
             "mode": "optional supporting evidence; no demo claim is fabricated",
         },
+        "writes": {
+            "mode": DEMO_FIXTURE_MODE,
+            "label": "bounded illustrative fixtures; not authoritative captures",
+            "real_retrieval": True,
+        },
     }
 
 
@@ -388,36 +504,51 @@ class Handler(BaseHTTPRequestHandler):
                     key = f"demo-{int(time.time() * 1000)}"
                 category = clean_category(body.get("category"))
                 entity_type = clean_type(body.get("type"))
-                document = {
-                    "content": text,
-                    "summary": text[:240],
-                    "origin": {
-                        "capture_method": "public_demo",
-                        "memory_kind": "asserted",
-                        "source_system": "perseus-vault-demo",
-                        "observed_at_unix_ms": int(time.time() * 1000),
-                    },
-                }
-                out = vault_call(
-                    "perseus_vault_remember",
-                    {
+                fixture = body.get("fixture") is True
+                if fixture:
+                    out = vault_seed_fixture({
                         "category": category,
                         "key": key,
+                        "text": text,
                         "type": entity_type,
-                        "body_json": json.dumps(document),
                         "workspace_hash": workspace,
-                        "agent_id": "public-demo",
-                        "importance": 0.7,
-                        "tags": ["public-demo"],
-                    },
-                )
-                if write_is_not_serveable(out):
+                    })
+                else:
+                    document = {
+                        "content": text,
+                        "summary": text[:240],
+                        "origin": {
+                            "capture_method": "public_demo",
+                            "memory_kind": "asserted",
+                            "source_system": "perseus-vault-demo",
+                            "observed_at_unix_ms": int(time.time() * 1000),
+                        },
+                    }
+                    out = vault_call(
+                        "perseus_vault_remember",
+                        {
+                            "category": category,
+                            "key": key,
+                            "type": entity_type,
+                            "body_json": json.dumps(document),
+                            "workspace_hash": workspace,
+                            "agent_id": "public-demo",
+                            "importance": 0.7,
+                            "tags": ["public-demo"],
+                        },
+                    )
+                if not fixture and write_is_not_serveable(out):
                     return self._send(503, {
                         "error": "This demo could not make that memory available yet. Please try again.",
                         "status": "write_not_serveable",
                     })
                 code, payload = result_payload(
-                    out, started, operation="remember", category=category, key=key
+                    out,
+                    started,
+                    operation="remember",
+                    category=category,
+                    key=key,
+                    fixture_mode=DEMO_FIXTURE_MODE if fixture else "mcp_admission_required",
                 )
                 return self._send(code, payload)
 

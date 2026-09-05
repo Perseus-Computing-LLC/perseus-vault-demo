@@ -266,7 +266,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
       <p class="hero-category">An open-source memory layer for AI agents and engineering teams.</p>
       <p class="hero-lead">Save one decision. In a later task, Vault finds what matters and prepares bounded context the next task can use.</p>
       <div class="hero-actions"><a id="hero-demo" class="btn btn-primary" href="#try">Run the 60-second demo ↓</a><a class="btn btn-secondary" href="https://github.com/Perseus-Computing-LLC/perseus-vault">Read the source ↗</a></div>
-      <p class="hero-boundary"><strong>REAL VAULT ENGINE</strong> · browser-scoped private demo · no AI model · no production data</p>
+      <div class="hero-boundary"><strong>REAL VAULT ENGINE</strong> · bounded fixture writes · real recall/context · browser-scoped private demo · no AI model · no production data</div>
     </div>
     <div id="hero-stage" class="stage" aria-label="Live proof preview">
       <div class="stage-head"><span>LIVE PROOF / MEMORY LOOP</span><span id="hero-stage-status" class="stage-status" data-state="ready">waiting for a story</span></div>
@@ -281,24 +281,24 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
   <div class="shell trust-line" aria-label="Demo boundary"><strong>Open source</strong><span>Real Vault engine</span><span>Private demo session</span><span>No production data</span></div>
 
   <section id="try" class="demo-shell shell" tabindex="-1">
-    <div class="section-heading"><div><div class="eyebrow">One guided story</div><h2>Watch memory change the next task.</h2></div><p>Start empty, capture three realistic decisions, retrieve only what fits, and leave with a short summary the next task can actually use.</p></div>
+    <div class="section-heading"><div><div class="eyebrow">One guided story</div><h2>Watch memory change the next task.</h2></div><p>Start empty, stage three bounded illustrative fixtures, retrieve only what fits, and leave with a short summary the next task can actually use.</p></div>
     <div class="story-console">
       <div class="story-bar"><div class="story-controls"><label for="scenario">Story</label><select id="scenario" aria-label="Choose a demo story"><option value="deploy">Production deploy</option><option value="onboarding">New teammate onboarding</option><option value="incident">Incident response</option></select><button id="run-story" class="btn btn-primary btn-small" type="button">Run the demo</button><button id="reset" class="btn btn-small" type="button">Start over</button></div><div id="story-status" class="story-status" role="status" aria-live="polite" data-state="ready">Ready · private demo session</div></div>
       <div class="proof-rail" aria-label="How the demo works">
         <article id="phase-before" class="proof-phase" data-state="ready"><div class="proof-phase-label">01 · START</div><h3>Blank slate</h3><p id="phase-before-detail" class="proof-phase-detail">Nothing saved yet</p></article>
-        <article id="phase-teach" class="proof-phase" data-state="ready"><div class="proof-phase-label">02 · SAVE</div><h3>Save what matters</h3><p id="phase-teach-detail" class="proof-phase-detail">0 saved in this session</p></article>
+        <article id="phase-teach" class="proof-phase" data-state="ready"><div class="proof-phase-label">02 · SAVE</div><h3>Save what matters</h3><p id="phase-teach-detail" class="proof-phase-detail">0 bounded fixtures staged in this session</p></article>
         <article id="phase-after" class="proof-phase" data-state="ready"><div class="proof-phase-label">03 · FIND</div><h3>What Vault found</h3><p id="phase-after-detail" class="proof-phase-detail">Ask what you are about to do</p></article>
         <article id="phase-use" class="proof-phase" data-state="ready"><div class="proof-phase-label">04 · USE</div><h3>Ready-to-use summary</h3><p id="phase-use-detail" class="proof-phase-detail">Your short summary will appear here</p></article>
       </div>
-      <p class="run-boundary" role="note">Every run starts with a clean, private demo session: START begins empty, SAVE adds decisions, FIND retrieves only what fits, and USE prepares the bounded artifact.</p>
+      <p class="run-boundary" role="note">Every run starts with a clean, private demo session: START begins empty, SAVE stages three bounded labeled fixtures through Vault's trusted seed path, FIND retrieves only what fits, and USE prepares the real bounded artifact.</p>
       <div class="workspace">
         <section class="panel" aria-labelledby="teach-title">
-          <div class="panel-kicker">Step 1 · save a memory</div><h3 id="teach-title">Save something worth remembering.</h3><p class="panel-intro">The story supplies realistic examples. The calls underneath are real Vault operations, not a screenshot.</p>
+          <div class="panel-kicker">Step 1 · save a memory</div><h3 id="teach-title">Save something worth remembering.</h3><p class="panel-intro">The conference story uses three bounded labeled fixtures through Vault's trusted seed path. FIND and USE call the real Vault MCP service; manual unapproved writes stay fail-closed.</p>
           <label class="field-label" for="memory-text">What should Vault remember?</label><textarea id="memory-text" placeholder="Example: Billing migrations require a rollback rehearsal before production deploy."></textarea>
           <div class="sample-row" aria-label="Example memories"><button class="sample" type="button" data-sample="deploy">deployment rule</button><button class="sample" type="button" data-sample="onboarding">team rule</button><button class="sample" type="button" data-sample="incident">incident lesson</button></div>
           <div class="field-row"><div><label class="field-label" for="memory-key">Short label <span style="color:var(--quiet)">(optional)</span></label><input id="memory-key" placeholder="rollback-before-prod"></div><div><label class="field-label" for="memory-category">Type</label><select id="memory-category" aria-label="Memory kind"><option value="decision">Decision</option><option value="convention">Team rule</option><option value="lesson">Lesson</option><option value="preference">Preference</option><option value="fact">Fact</option></select></div></div>
-          <div class="panel-actions"><button id="remember" class="btn btn-secondary btn-small" type="button">Save memory</button><span id="remember-status" class="story-status">Stays in this demo session</span></div>
-          <div class="capture-log" aria-label="Saved memories in this session"><div class="operation-head"><span class="operation-title">Saved in this session</span><span id="capture-count" class="operation-time">0</span></div><div id="capture-list" class="capture-list" role="list" aria-live="polite"></div></div>
+          <div class="panel-actions"><button id="remember" class="btn btn-secondary btn-small" type="button">Save memory</button><span id="remember-status" class="story-status">Manual writes require admission evidence</span></div>
+          <div class="capture-log" aria-label="Saved memories in this session"><div class="operation-head"><span class="operation-title">Saved in this session · bounded fixtures</span><span id="capture-count" class="operation-time">0</span></div><div id="capture-list" class="capture-list" role="list" aria-live="polite"></div></div>
         </section>
         <section class="panel use" aria-labelledby="recall-title">
           <div class="panel-kicker green">Step 2 · use it</div><h3 id="recall-title">Start with the right information.</h3><p class="panel-intro">The payoff is not “search succeeded.” It is the relevant past arriving before the next task repeats the work.</p>
@@ -308,13 +308,13 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
           <div class="operation"><div class="operation-head"><span class="operation-title">Ready-to-use summary</span><span id="context-time" class="operation-time"></span></div><div id="context-output" class="output empty" role="status" aria-live="polite">Run the demo to see a short summary you can use to start the task.</div><div class="context-tools"><span id="context-meta" class="context-meta">Nothing ready yet.</span><span id="context-copy-status" class="context-copy-status" role="status" aria-live="polite"></span><button id="copy-context" class="btn btn-small" type="button" disabled>Copy summary</button></div><div class="panel-actions"><button id="prepare" class="btn btn-small" type="button">Prepare this summary</button></div></div>
         </section>
       </div>
-      <section id="outcome-summary" class="outcome-summary" role="status" aria-live="polite" aria-labelledby="outcome-title" hidden><div class="outcome-mark" aria-hidden="true">✓</div><div><div class="outcome-kicker">The observable change</div><h3 id="outcome-title">The next task gets a head start.</h3><p id="outcome-detail">Before, this task had nothing saved. Now it starts with only the memories that fit the question.</p><div class="outcome-path" aria-label="Observed demo result"><span id="outcome-before">0 found</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-captured">0 saved</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-selected">0 used</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-context">0 chars ready</span></div><details id="run-inspector" class="run-inspector" hidden><summary>Inspect this run</summary><div class="run-receipt-wrap"><pre id="run-receipt" class="run-receipt"></pre><div class="receipt-tools"><button id="copy-receipt" class="btn btn-small" type="button">Copy observation</button><span id="run-receipt-meta">Not ready</span><span id="receipt-copy-status" role="status" aria-live="polite"></span></div></div></details></div></section>
-      <div class="value-strip" aria-label="Demo activity"><div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">memories saved</div></div><div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">memories found</div></div><div class="value-cell"><div id="stat-context" class="value-number">0</div><div class="value-label">summaries prepared</div></div><div class="value-cell"><div id="stat-followed" class="value-number">0</div><div class="value-label">times marked useful</div></div></div>
+      <section id="outcome-summary" class="outcome-summary" role="status" aria-live="polite" aria-labelledby="outcome-title" hidden><div class="outcome-mark" aria-hidden="true">✓</div><div><div class="outcome-kicker">The observable change</div><h3 id="outcome-title">The next task gets a head start.</h3><p id="outcome-detail">Before, this task had nothing saved. Now it starts with only the memories that fit the question.</p><div class="outcome-path" aria-label="Observed demo result"><span id="outcome-before">0 found</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-captured">0 staged</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-selected">0 used</span><span class="outcome-arrow" aria-hidden="true">→</span><span id="outcome-context">0 chars ready</span></div><details id="run-inspector" class="run-inspector" hidden><summary>Inspect this run</summary><div class="run-receipt-wrap"><pre id="run-receipt" class="run-receipt"></pre><div class="receipt-tools"><button id="copy-receipt" class="btn btn-small" type="button">Copy observation</button><span id="run-receipt-meta">Not ready</span><span id="receipt-copy-status" role="status" aria-live="polite"></span></div></div></details></div></section>
+      <div class="value-strip" aria-label="Demo activity"><div class="value-cell"><div id="stat-stored" class="value-number">0</div><div class="value-label">fixtures staged</div></div><div class="value-cell"><div id="stat-hits" class="value-number">0</div><div class="value-label">memories found</div></div><div class="value-cell"><div id="stat-context" class="value-number">0</div><div class="value-label">summaries prepared</div></div><div class="value-cell"><div id="stat-followed" class="value-number">0</div><div class="value-label">times marked useful</div></div></div>
     </div>
   </section>
 
   <section class="secondary shell">
-    <div class="secondary-grid"><div><div class="eyebrow">Trust without theater</div><h2>The demo shows the memory loop — not a made-up business result.</h2><p>This page uses the real Vault engine with browser-supplied illustrative inputs. It does not call an AI model, use production data, or claim provider savings.</p></div><div class="detail-stack"><details class="detail"><summary>What is real here?</summary><div class="detail-body"><p><strong>Real:</strong> Vault remember, recall, context, and feedback responses from the hosted demo service.</p><p><strong>Seeded:</strong> the example query and three memory texts supplied by this browser story.</p><p><strong>Not demonstrated:</strong> agent action, customer outcome, provider-billed savings, or a production audit receipt.</p></div></details><details class="detail"><summary>How teams can measure value later</summary><div class="detail-body"><p>This page demonstrates the memory loop—not a promise about customer savings.</p><p><strong>ONLY IN A REAL DEPLOYMENT</strong> · Not generated by this demo.</p><p>In a real deployment, Perseus Ledger can record provider usage and the prompt Vault replaced. That comparison belongs to a separate evidence path with its coverage and method shown.</p><p><a href="https://github.com/Perseus-Computing-LLC/perseus/blob/main/WIRING.md">Read the measurement method ↗</a></p></div></details></div></div>
+    <div class="secondary-grid"><div><div class="eyebrow">Trust without theater</div><h2>The demo shows the memory loop — not a made-up business result.</h2><p>This page uses the real Vault engine with browser-scoped illustrative inputs. The guided story writes only a bounded, labeled fixture set through Vault's explicit trusted seed path; recall and context remain real Vault operations. It does not call an AI model, use production data, or claim provider savings.</p></div><div class="detail-stack"><details class="detail"><summary>What is real here?</summary><div class="detail-body"><p><strong>Real:</strong> Vault's bounded trusted seed, recall, context, and feedback responses from the hosted demo service.</p><p><strong>Seeded:</strong> the example query and three memory texts supplied by this browser story.</p><p><strong>Not demonstrated:</strong> agent action, customer outcome, provider-billed savings, or a production audit receipt.</p></div></details><details class="detail"><summary>How teams can measure value later</summary><div class="detail-body"><p>This page demonstrates the memory loop—not a promise about customer savings.</p><p><strong>ONLY IN A REAL DEPLOYMENT</strong> · Not generated by this demo.</p><p>In a real deployment, Perseus Ledger can record provider usage and the prompt Vault replaced. That comparison belongs to a separate evidence path with its coverage and method shown.</p><p><a href="https://github.com/Perseus-Computing-LLC/perseus/blob/main/WIRING.md">Read the measurement method ↗</a></p></div></details></div></div>
     <div class="provenance" aria-label="About this demo"><div class="provenance-head"><span class="provenance-label">About this demo</span><span id="provenance-status" class="provenance-status">live · private demo</span></div><div class="provenance-grid"><div class="provenance-item"><span>where it runs</span><strong id="provenance-runtime">Hosted demo</strong></div><div class="provenance-item"><span>what powers it</span><strong id="provenance-vault">Real Vault engine</strong></div><div class="provenance-item"><span>your data</span><strong id="provenance-source">Private to this browser</strong></div><div class="provenance-item"><span>extra proof</span><strong id="provenance-ledger">Optional</strong></div></div><div class="provenance-actions"><button id="inspect-evidence" type="button">Check supporting evidence</button><a href="https://github.com/Perseus-Computing-LLC/perseus-vault-demo">View source on GitHub ↗</a></div><p class="provenance-note">You are using the real Vault engine in a private demo session. Nothing here touches production data, and the demo does not call an AI model.</p><div id="evidence-output" class="evidence-output output" role="status" aria-live="polite"></div></div>
   </section>
 </main>
@@ -344,7 +344,8 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
 
   const stories = {
     deploy: {
-      query: "What must I know before changing the billing migration?",
+      query: "billing",
+      mode: "fts5",
       memories: [
         ["decision", "rollback-rehearsal", "Billing migrations require a rollback rehearsal on staging before production deploy."],
         ["convention", "deployment-freeze", "Production deploys are frozen Friday afternoon unless an emergency mitigation is approved."],
@@ -434,7 +435,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
   function resetPhases() {
     activePhase = "";
     setPhase("before", "ready", "Nothing saved yet");
-    setPhase("teach", "ready", "0 saved in this session");
+    setPhase("teach", "ready", "0 bounded fixtures staged in this session");
     setPhase("after", "ready", "Ask what you are about to do");
     setPhase("use", "ready", "Your short summary will appear here");
   }
@@ -503,7 +504,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
     saveStats();
     renderCaptures();
     if (storyRunning) {
-      setPhase("teach", "active", `${capturedMemories.length} of ${storyTargetCount} decisions saved`);
+      setPhase("teach", "active", `${capturedMemories.length} of ${storyTargetCount} bounded fixtures staged`);
     } else {
       setPhase("teach", "complete", `${capturedMemories.length} saved in this session`);
     }
@@ -512,8 +513,8 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
   function renderOutcome(capturedCount, selectedCount) {
     const outcome = $("outcome-summary");
     if (!outcome) return;
-    $("outcome-detail").textContent = `Before, this task had nothing saved. Vault saved ${capturedCount} decisions, used ${selectedCount} that fit the question, and prepared a short ${lastContextText.length.toLocaleString()}-character summary containing ${lastContextMemoryCount} saved memories.`;
-    $("outcome-captured").textContent = `${capturedCount} saved`;
+    $("outcome-detail").textContent = `Before, this task had nothing saved. Vault staged ${capturedCount} bounded fixtures, used ${selectedCount} that fit the question, and prepared a short ${lastContextText.length.toLocaleString()}-character summary containing ${lastContextMemoryCount} saved memories.`;
+    $("outcome-captured").textContent = `${capturedCount} staged`;
     $("outcome-selected").textContent = `${selectedCount} used`;
     $("outcome-context").textContent = `${lastContextText.length.toLocaleString()} chars ready`;
     renderRunReceipt(capturedCount, selectedCount);
@@ -556,12 +557,13 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
       "Not an audit receipt. Browser-scoped conference demo run.",
       "",
       "BEFORE  0 relevant memories · fresh scope",
-      `CAPTURE ${capturedCount} illustrative memories supplied by the browser story`,
+      `CAPTURE ${capturedCount} bounded illustrative fixtures seeded into the real Vault store`,
       `AFTER   ${selectedCount} selected for: ${$("query").value.trim()}`,
       `LEFT OUT ${omitted.length ? omitted.map((memory) => memory.key).join(", ") : "none"}`,
       `USE     ${lastContextMemoryCount} memories included · ${lastContextText.length} characters / 2,400 cap`,
       "",
-      "REAL PATH  Vault remember → recall → context completed",
+      "REAL PATH  Vault trusted fixture seed → MCP recall → MCP context completed",
+      "FIXTURE    bounded browser story inputs; not authoritative captures",
       "BOUNDARY   no LLM · no production data · no provider-billed result"
     ].join("\n");
     receipt.textContent = lastReceiptText;
@@ -625,7 +627,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
     $("context-meta").textContent = "Nothing ready yet.";
     $("context-copy-status").textContent = "";
     $("copy-context").disabled = true;
-    setStatus("remember-status", "Stays in this demo session");
+    setStatus("remember-status", "Manual writes require admission evidence");
     const inspector = $("run-inspector");
     if (inspector) inspector.hidden = true;
     setHeroStage();
@@ -747,7 +749,8 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
         text: textValue,
         key: keyValue,
         category: categoryValue,
-        type: categoryValue
+        type: categoryValue,
+        fixture: Boolean(silent)
       });
       recordCaptured(textValue, result.key || keyValue, categoryValue);
       if (!silent) {
@@ -764,7 +767,8 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
     }
   }
 
-  async function recall(propagate = false) {
+  async function recall(propagate = false, requestedMode = null) {
+    const activeMode = requestedMode || mode;
     const query = $("query").value.trim();
     if (!query) {
       const error = new Error("Describe the task you are about to do.");
@@ -776,13 +780,13 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
     button.disabled = true; button.textContent = "Finding…";
     setOutput("recall-output", "Looking through your saved memories…", false);
     try {
-      const result = await post("/api/recall", { query, mode });
+      const result = await post("/api/recall", { query, mode: activeMode });
       const items = itemsFrom(result);
       lastHits = items;
       setHeroStage();
       stats.hits = items.length;
       saveStats();
-      const modeLabel = mode === "dense" ? "by meaning" : mode === "fts5" ? "by keyword" : "best match";
+      const modeLabel = activeMode === "dense" ? "by meaning" : activeMode === "fts5" ? "by keyword" : "best match";
       $("recall-time").textContent = modeLabel;
       if (!items.length) {
         setOutput("recall-output", "Nothing relevant yet. Save a decision above, then ask this question again.", true);
@@ -889,6 +893,9 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
   async function runStory() {
     const button = $("run-story");
     const story = scenario();
+    const storyMode = story.mode || mode;
+    mode = storyMode;
+    document.querySelectorAll("[data-mode]").forEach((tab) => tab.setAttribute("aria-selected", tab.dataset.mode === storyMode ? "true" : "false"));
     if (button.disabled) return;
     button.disabled = true; button.textContent = "Running…";
     $("reset").disabled = true;
@@ -902,7 +909,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
       // BEFORE: prove that this fresh scope starts empty.
       setPhase("before", "active", "Starting with a blank task…");
       setStoryState("Starting with a blank task…", "running");
-      const beforeHits = await recall(true);
+      const beforeHits = await recall(true, storyMode);
       if (beforeHits.length) throw new Error("The demo session was not isolated. Please try again.");
       $("recall-time").textContent = "nothing found yet";
       setOutput("recall-output", "This task starts with nothing saved. Without Vault, these facts would have to be found again.", true);
@@ -912,20 +919,20 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
       await new Promise(r => setTimeout(r, 1500));
 
       // TEACH: every visible progress step follows a successful remember call.
-      setPhase("teach", "active", `0 of ${storyTargetCount} decisions saved`);
-      setStoryState("Saving the example decisions…", "running");
+      setPhase("teach", "active", `0 of ${storyTargetCount} bounded fixtures staged`);
+      setStoryState("Staging the bounded example fixtures…", "running");
       for (const [category, key, text] of story.memories) {
-        setStoryState(`Saving ${key}…`, "running");
+        setStoryState(`Staging ${key}…`, "running");
         await remember(text, key, category, true);
         await new Promise(r => setTimeout(r, 600));
       }
-      if (capturedMemories.length !== storyTargetCount) throw new Error("Not all example memories were saved.");
-      setPhase("teach", "complete", `${capturedMemories.length} decisions saved`);
+      if (capturedMemories.length !== storyTargetCount) throw new Error("Not all bounded example fixtures were staged.");
+      setPhase("teach", "complete", `${capturedMemories.length} bounded fixtures staged`);
 
       // AFTER: retrieve only what matches the later task.
       setPhase("after", "active", "Finding the same task context…");
       setStoryState("Finding the same task context…", "running");
-      const afterHits = await recall(true);
+      const afterHits = await recall(true, storyMode);
       if (!afterHits.length) throw new Error("Vault could not find the saved memories.");
       const selectedKeys = new Set(afterHits.map(memoryIdentity));
       const omittedCount = capturedMemories.filter((memory) => !selectedKeys.has(memory.key)).length;
@@ -972,7 +979,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
     storyRunning = false;
     resetRunState();
     fillScenario();
-    setStatus("remember-status", "Stays in this demo session");
+    setStatus("remember-status", "Manual writes require admission evidence");
     setStoryState("Ready · private demo session", "ready");
     toast("Started over with a private demo session.");
   });
