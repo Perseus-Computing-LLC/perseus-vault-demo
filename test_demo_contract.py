@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import json
+import subprocess
 import time
 import unittest
 from pathlib import Path
@@ -55,7 +56,7 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('id="capture-list"', self.html)
         self.assertIn('await remember(text, key, category, true);', self.html)
         self.assertIn('recordCaptured(textValue, result.key || keyValue, categoryValue);', self.html)
-        self.assertIn('decisions saved', self.html)
+        self.assertIn('bounded fixtures staged', self.html)
 
     def test_recall_explains_the_relevant_subset_and_omission(self) -> None:
         self.assertIn('Vault found ${items.length} of ${capturedMemories.length} saved memories that fit this task.', self.html)
@@ -167,6 +168,45 @@ class DemoContractTests(unittest.TestCase):
         self.assertIn('VAULT_VERSION=2.23.2', dockerfile)
         self.assertIn('VAULT_VERSION: "2.23.2"', compose)
         self.assertNotIn("2.22.0-embedded-20260730", dockerfile)
+
+    def test_fixture_path_is_bounded_and_disclosed(self) -> None:
+        self.assertEqual(len(app.DEMO_FIXTURE_CATALOG), 9)
+        self.assertIn("bounded_trusted_cli_seed", self.app)
+        self.assertIn("vault_seed_fixture", self.app)
+        self.assertIn('fixture: Boolean(silent)', self.html)
+        self.assertIn("bounded illustrative fixtures; not authoritative captures", self.app)
+        self.assertIn("real_retrieval", public_provenance()["writes"])
+        self.assertTrue(public_provenance()["writes"]["real_retrieval"])
+
+    def test_fixture_seed_rejects_unlisted_content_and_uses_cli_for_listed_content(self) -> None:
+        with patch.object(app.subprocess, "run") as run:
+            rejected = app.vault_seed_fixture({
+                "category": "decision",
+                "key": "rollback-rehearsal",
+                "text": "arbitrary public input",
+                "type": "decision",
+                "workspace_hash": "scope-a",
+            })
+        self.assertIn("bounded demo fixtures", rejected["error"])
+        run.assert_not_called()
+
+        completed = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout='{\n  "action": "created",\n  "id": "cli-demo",\n  "ok": true\n}\n', stderr=""
+        )
+        with patch.object(app.subprocess, "run", return_value=completed) as run:
+            saved = app.vault_seed_fixture({
+                "category": "decision",
+                "key": "rollback-rehearsal",
+                "text": app.DEMO_FIXTURE_CATALOG[("decision", "rollback-rehearsal")],
+                "type": "decision",
+                "workspace_hash": "scope-a",
+            })
+        self.assertTrue(saved["ok"])
+        self.assertEqual(saved["data"]["fixture_mode"], "bounded_trusted_cli_seed")
+        command = run.call_args.args[0]
+        self.assertEqual(command[1], "write")
+        self.assertIn("--workspace-hash", command)
+        self.assertIn("scope-a", command)
 
     def test_container_explicitly_resets_the_vault_base_entrypoint(self) -> None:
         dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")

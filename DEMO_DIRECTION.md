@@ -16,8 +16,8 @@ the back of a room: one promise, one live transformation, one honest boundary.
 
 1. Start in a fresh browser-scoped demo scope.
 2. Show the honest BEFORE state: zero relevant memories.
-3. Run one guided scenario that captures three clearly labeled illustrative
-   decisions/conventions/facts through the real Vault service.
+3. Run one guided scenario that stages three clearly labeled illustrative
+   decisions/conventions/facts through Vault's explicit trusted seed path.
 4. Show actual progress and stop visibly on any failed child operation.
 5. Ask the later-task question and show only the relevant subset, including what was
    left out.
@@ -40,11 +40,12 @@ the back of a room: one promise, one live transformation, one honest boundary.
 
 ## Reality boundary
 
-- **Real:** `app.py` invokes the deployed `perseus-vault` binary for remember,
-  recall, context, and feedback operations. The source UI was exercised through a
-  local same-origin QA proxy forwarding API calls to the live service.
+- **Real:** `app.py` invokes the real `perseus-vault` binary. Guided fixture writes use
+  its explicit trusted CLI seed path; recall, context, and feedback use the MCP
+  stdio service. Manual unapproved writes remain fail-closed pending admission.
 - **Seeded/illustrative:** the example query and three memory texts in `index.html`
-  are browser-supplied story inputs. They are not customer data.
+  are browser-supplied, whitelisted story inputs. The server rejects arbitrary
+  fixture payloads and labels these records as non-authoritative conference data.
 - **Not demonstrated:** no LLM call, agent action, customer outcome, provider-billed
   event, provider savings, benchmark result, or production audit receipt.
 
@@ -61,15 +62,13 @@ the back of a room: one promise, one live transformation, one honest boundary.
 
 ## Source and live boundary
 
-Canonical source: `Perseus-Computing-LLC/perseus-vault-demo`, local branch
-`demo/conference-observable-proof`. Deployment ownership remains the Portainer stack
-specified by `docker-compose.yml`; no deployment, push, or PR is part of this pass.
-The public URL is `https://vault-demo.perseus.observer/`.
+Canonical source: `Perseus-Computing-LLC/perseus-vault-demo`, with deployment owned by
+its Portainer Git-backed stack from `docker-compose.yml`. The public URL is
+`https://vault-demo.perseus.observer/`.
 
-The public service was exercised with a real browser before and after the source
-work through a local QA proxy. The live runtime remains the prior deployed source;
-the new conference surface is not claimed live until an authorized deployment and
-fresh public verification occur.
+Source verification used a same-origin local app and a disposable remote Vault
+2.23.2 database. The public artifact is not claimed updated until the authorized
+Portainer redeploy and fresh public browser verification complete.
 
 ## Acceptance criteria
 
