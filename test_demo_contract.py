@@ -190,6 +190,8 @@ class DemoContractTests(unittest.TestCase):
             self.assertIn(marker, self.html)
         self.assertIn('id="hero-question"', self.html)
         self.assertIn("story.query", self.html)
+        self.assertIn('searchQuery: "telemetry interface"', self.html)
+        self.assertIn("function effectiveQuery()", self.html)
 
     def test_engineering_fixtures_are_whitelisted_for_the_real_seed_path(self) -> None:
         self.assertEqual(len(app.DEMO_FIXTURE_CATALOG), 12)
