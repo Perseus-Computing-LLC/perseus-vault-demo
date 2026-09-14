@@ -170,13 +170,35 @@ class DemoContractTests(unittest.TestCase):
         self.assertNotIn("2.22.0-embedded-20260730", dockerfile)
 
     def test_fixture_path_is_bounded_and_disclosed(self) -> None:
-        self.assertEqual(len(app.DEMO_FIXTURE_CATALOG), 9)
+        self.assertEqual(len(app.DEMO_FIXTURE_CATALOG), 12)
         self.assertIn("bounded_trusted_cli_seed", self.app)
         self.assertIn("vault_seed_fixture", self.app)
         self.assertIn('fixture: Boolean(silent)', self.html)
         self.assertIn("bounded illustrative fixtures; not authoritative captures", self.app)
         self.assertIn("real_retrieval", public_provenance()["writes"])
         self.assertTrue(public_provenance()["writes"]["real_retrieval"])
+
+    def test_engineering_change_story_is_available_for_mission_discovery(self) -> None:
+        for marker in (
+            'value="engineering"',
+            "Engineering change review",
+            "What must I know before changing the telemetry interface?",
+            "interface-baseline",
+            "test-evidence-linkage",
+            "stale-interface-assumption",
+        ):
+            self.assertIn(marker, self.html)
+        self.assertIn('id="hero-question"', self.html)
+        self.assertIn("story.query", self.html)
+
+    def test_engineering_fixtures_are_whitelisted_for_the_real_seed_path(self) -> None:
+        self.assertEqual(len(app.DEMO_FIXTURE_CATALOG), 12)
+        for key in (
+            ("decision", "interface-baseline"),
+            ("convention", "test-evidence-linkage"),
+            ("lesson", "stale-interface-assumption"),
+        ):
+            self.assertIn(key, app.DEMO_FIXTURE_CATALOG)
 
     def test_fixture_seed_rejects_unlisted_content_and_uses_cli_for_listed_content(self) -> None:
         with patch.object(app.subprocess, "run") as run:

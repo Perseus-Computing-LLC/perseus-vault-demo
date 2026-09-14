@@ -52,6 +52,9 @@ DEMO_FIXTURE_CATALOG: dict[tuple[str, str], str] = {
     ("lesson", "incident-first-check"): "Check the provider webhook queue before restarting workers; a restart can hide the original failure.",
     ("convention", "incident-channel"): "Billing incidents use #billing-ops and the incident commander records the decision in the ledger.",
     ("decision", "rollback-threshold"): "Roll back after five minutes of increasing payment failures unless an approved mitigation is already active.",
+    ("decision", "interface-baseline"): "The current telemetry interface baseline is authoritative; changes require review against the approved interface definition.",
+    ("convention", "test-evidence-linkage"): "Verification evidence must be tied to the configuration and run identifier that produced it.",
+    ("lesson", "stale-interface-assumption"): "A previous integration issue came from relying on an obsolete interface assumption; verify the current baseline before modifying the interface.",
 }
 DEMO_FIXTURE_MODE = "bounded_trusted_cli_seed"
 
