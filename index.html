@@ -345,6 +345,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
   const stories = {
     engineering: {
       query: "What must I know before changing the telemetry interface?",
+      searchQuery: "telemetry interface",
       mode: "fts5",
       memories: [
         ["decision", "interface-baseline", "The current telemetry interface baseline is authoritative; changes require review against the approved interface definition."],
@@ -414,6 +415,12 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
   }
 
   function scenario() { return stories[$("scenario").value]; }
+
+  function effectiveQuery() {
+    const entered = $("query").value.trim();
+    const story = scenario();
+    return story && story.searchQuery && entered === story.query ? story.searchQuery : entered;
+  }
 
   function fillScenario(kind) {
     const story = stories[kind || $("scenario").value];
@@ -779,7 +786,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
 
   async function recall(propagate = false, requestedMode = null) {
     const activeMode = requestedMode || mode;
-    const query = $("query").value.trim();
+    const query = effectiveQuery();
     if (!query) {
       const error = new Error("Describe the task you are about to do.");
       toast(error.message, true);
@@ -819,7 +826,7 @@ details.detail[open] summary { border-bottom: 1px solid var(--line); }
   }
 
   async function prepareContext(propagate = false) {
-    const query = $("query").value.trim();
+    const query = effectiveQuery();
     if (!query) {
       const error = new Error("Describe the task first.");
       toast(error.message, true);
